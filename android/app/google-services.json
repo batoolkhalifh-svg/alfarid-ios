@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "148179299162",
+    "project_id": "alfarid-4a4ae",
+    "storage_bucket": "alfarid-4a4ae.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:148179299162:android:5d333298271a2da1792163",
+        "android_client_info": {
+          "package_name": "com.teacher.alfarid.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMpV80AEz7HSr-Wh7KPOdWb5dmnTNs7Jc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

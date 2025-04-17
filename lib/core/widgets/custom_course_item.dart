@@ -1,0 +1,90 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
+
+import '../utils/colors.dart';
+import '../utils/images.dart';
+import '../utils/size.dart';
+import '../utils/styles.dart';
+
+class CustomCourseItem extends StatelessWidget {
+ final bool? isSaves;
+ final String img, title,subTitle,price;
+ final String? teacherName;
+ final Function()? onTap;
+ final Function()? onTapSave;
+
+  const CustomCourseItem({super.key, this.isSaves, required this.img, required this.title, required this.subTitle, required this.price,  this.teacherName,required this.onTap, this.onTapSave});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: width,
+        alignment: AlignmentDirectional.topStart,
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppRadius.r8)
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: width*0.29,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadiusDirectional.only(topStart:Radius.circular( AppRadius.r8),bottomStart: Radius.circular( AppRadius.r8)),
+                  image:  DecorationImage(image: NetworkImage(img),fit: BoxFit.fill,)
+              ),
+              child:  img.isEmpty
+                  ? Image.asset(AppImages.noImage,fit: BoxFit.fill,)
+                  : null,
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: width*0.018),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: width*0.02,vertical:height*0.01,),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(title,style: Styles.textStyle14.copyWith(color: AppColors.mainColor2)),
+                        SizedBox(width: width*0.33),
+                        GestureDetector(
+                            onTap: onTapSave,
+                            child: SvgPicture.asset(isSaves==true? AppImages.save:AppImages.unSave,width: width*0.05))
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: width*0.5,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: width*0.02),
+                      child: Text(subTitle,style: Styles.textStyle12.copyWith(color: AppColors.blackColor),),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: width*0.02),
+                    child: Row(
+                      children: [
+                        Text(price,style: Styles.textStyle14.copyWith(color: AppColors.mainColor2,fontSize: 15.sp)),
+                        teacherName==null?  SizedBox(height: height*0.06):Image.asset(AppImages.tallDash,width: width*0.05,height: height*0.06),
+                        SizedBox(width: width*0.01,),
+                        Text(teacherName ?? "",style: Styles.textStyle14.copyWith(color: AppColors.blackColor,fontFamily: AppFonts.almaraiRegular)),
+                        SizedBox(width: width*0.01,),
+                      teacherName==null? const SizedBox.shrink():  const Icon(Icons.person,color: AppColors.mainColor2,size: 18,),
+
+                      ],
+                    ),
+                  ),
+
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
