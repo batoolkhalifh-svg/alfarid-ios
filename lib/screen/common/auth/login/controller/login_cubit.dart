@@ -1,6 +1,7 @@
 import 'package:alfarid/core/widgets/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/local/app_cached.dart';
@@ -38,8 +39,8 @@ class LoginCubit extends Cubit<BaseStates> {
     await getFireToken();
     final formDataStudent = ({
       "register_type" : "student",
-      "email" :emailController.text,
-      "password" :passController.text,
+      "email" :kDebugMode?'kamalabozyed0@gmail.com':emailController.text,
+      "password":kDebugMode? 'password':passController.text,
       "firebase_token" :fireToken,
       "device_id" : await getDeviceId(),
     });

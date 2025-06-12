@@ -43,11 +43,6 @@ class EditProfileCubit extends Cubit<BaseStates> {
     subjectId = value;
     emit(BaseStatesChangeState());
   }
-  String? classroomId;
-  void changeClassroomId(value) {
-    classroomId = value;
-    emit(BaseStatesChangeState());
-  }
 
   SubjectModel? subjectsModel;
   Future<void> fetchSubjects()async{
@@ -89,18 +84,20 @@ class EditProfileCubit extends Cubit<BaseStates> {
       phone=userModel!.data!.phone.toString();
       phoneKeyNumber=userModel!.data!.phoneKey.toString();
       phoneKeyCode=CacheHelper.getData(key: AppCached.phoneKeyCode);
-      classroomId=userModel!.data!.classroom!.id.toString();
+      // classroomId=userModel!.data!.classroom!.id.toString();
+      selectedClassroomNames.add(userModel!.data!.classroom!.name.toString());
+      selectedClassroomIds.add(userModel!.data!.classroom!.id!);
+      classRoomCtrl.text=selectedClassroomNames.first;
       emit(BaseStatesSuccessState());
     }else{
       emit(BaseStatesErrorState(msg: response["message"]));
     }
   }
-
+  TextEditingController classRoomCtrl=TextEditingController();
   TeacherModel? teacherModel;
   Future<void> fetchTeacher()async{
     emit(BaseStatesLoadingState());
     Map<dynamic,dynamic> response =await myDio(endPoint: AppConfig.teacherData, dioType: DioType.get);
-    debugPrint(r"2222222222");
     debugPrint(response.toString());
     if(response["status"]==true){
       teacherModel = TeacherModel.fromJson(response);
@@ -112,7 +109,12 @@ class EditProfileCubit extends Cubit<BaseStates> {
       phone=teacherModel!.data!.phone.toString();
       phoneKeyNumber=teacherModel!.data!.phoneKey ?? '974';
       phoneKeyCode=CacheHelper.getData(key: AppCached.phoneKeyCode);
-      classroomId=teacherModel!.data!.classrooms![0].id.toString();
+      teacherModel!.data!.classrooms!.forEach((element){
+        selectedClassroomNames.add(element.name.toString());
+        selectedClassroomIds.add(element.id!);
+      },);
+      // classroomId=teacherModel!.data!.classrooms![0].id.toString();
+      classRoomCtrl.text=selectedClassroomNames.join(' , ');
       subjectId=teacherModel!.data!.subjects![0].id.toString();
       emit(BaseStatesSuccessState());
     }else{
@@ -127,7 +129,7 @@ class EditProfileCubit extends Cubit<BaseStates> {
       "email" : emailController.text,
       'phone_key':phoneKeyNumber,
       'phone':phone,
-      'classroom_id':classroomId,
+      'classroom_id':selectedClassroomIds.first,
     });
     final formDataT = ({
       "name" : nameController.text,
@@ -135,9 +137,8 @@ class EditProfileCubit extends Cubit<BaseStates> {
       'phone_key':phoneKeyNumber,
       'phone':phone,
       'subject_id':[subjectId],
-      'classroom_id':[classroomId],
+      'classroom_id':selectedClassroomIds,
     });
-    print("2222222222222");
     debugPrint(formData.toString());
     debugPrint(formDataT.toString());
     Map<dynamic,dynamic> response = await myDio(
@@ -158,6 +159,31 @@ class EditProfileCubit extends Cubit<BaseStates> {
       emit(BaseStatesError2State());
     }
   }
+  List<int> selectedClassroomIds = [];
+  List<String> selectedClassroomNames = [];
 
+  void changeSelectedClassrooms({required int id, required String name}) {
+    final isStudent = CacheHelper.getData(key: AppCached.role) == AppCached.student;
+
+    if (isStudent) {
+      selectedClassroomIds
+        ..clear()
+        ..add(id);
+
+      selectedClassroomNames
+        ..clear()
+        ..add(name);
+    } else {
+      if (selectedClassroomIds.contains(id)) {
+        selectedClassroomIds.remove(id);
+        selectedClassroomNames.remove(name);
+      } else {
+        selectedClassroomIds.add(id);
+        selectedClassroomNames.add(name);
+      }
+    }
+    classRoomCtrl.text=selectedClassroomNames.join(' , ');
+    emit(BaseStatesChangeState());
+  }
 
 }

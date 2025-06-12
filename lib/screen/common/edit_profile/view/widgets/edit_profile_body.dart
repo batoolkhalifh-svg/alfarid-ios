@@ -23,81 +23,136 @@ class EditProfileBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<EditProfileCubit>(
-        create:CacheHelper.getData(key: AppCached.role)==AppCached.student? (context) => EditProfileCubit()..fetchUser():(context) =>EditProfileCubit()..fetchTeacher(),
+        create: CacheHelper.getData(key: AppCached.role) == AppCached.student
+            ? (context) => EditProfileCubit()..fetchUser()
+            : (context) => EditProfileCubit()..fetchTeacher(),
         child: BlocBuilder<EditProfileCubit, BaseStates>(builder: (context, state) {
           var cubit = EditProfileCubit.get(context);
           return Scaffold(
-            body:  SafeArea(
+            body: SafeArea(
               child: Column(
                 children: [
-                  CustomArrow(text: LocaleKeys.editProfile.tr(),),
-                  state is BaseStatesLoadingState? const CustomLoading(fullScreen: true,):
-                  state is BaseStatesErrorState ? Center(child: CustomError(title: state.msg, onPressed: (){
-                    CacheHelper.getData(key: AppCached.role)==AppCached.student?
-                    cubit.fetchUser():cubit.fetchTeacher();})):
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: width * 0.07, vertical: width * 0.06),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            CustomTextField(ctrl: cubit.nameController,hint: LocaleKeys.fullName.tr(),prefixImg:AppImages.user,isPrefixImg: true,isCharOnly: true,),
-                            CustomTextField(ctrl: cubit.emailController,hint: LocaleKeys.email.tr(),prefixImg:AppImages.email,isPrefixImg: true,isEmail: true,),
-                            CustomPhoneField(
-                                ctrl: cubit.phoneController,
-                                onChangedCode: (phone) {
-                              cubit.getPhoneKey(phone.code,phone.dialCode);
-                            }, onChangedPhone: (phone) {
-                              cubit.getPhone(phone.number);
-                            }, phoneKey: cubit.phoneKeyCode),
-                            // CacheHelper.getData(key: AppCached.role)==AppCached.student?
-                            CustomDropDown(
-                              onChanged: (v){
-                                cubit.changeClassroomId(v);
-                              },
-                              dropDownValue: cubit.classroomId,
-                              items: List.generate(
-                                  cubit.classroomModel!.data!.length,
-                                      (index) => DropdownMenuItem<String>(
-                                      value: cubit.classroomModel!.data![index].id.toString(),
-                                      child: Text(
-                                        cubit.classroomModel!.data![index].name.toString(),
-                                      ))), hintText: LocaleKeys.classRoom.tr(),
-                            ),
-                            CacheHelper.getData(key: AppCached.role)==AppCached.teacher?
-                            CustomDropDown(
-                              onChanged: (v){
-                                cubit.changeSubjectId(v);
-                              },
-                              dropDownValue: cubit.subjectId,
-                              items: List.generate(
-                                  cubit.subjectsModel!.data!.length,
-                                      (index) => DropdownMenuItem<String>(
-                                      value: cubit.subjectsModel!.data![index].id.toString(),
-                                      child: Text(
-                                        cubit.subjectsModel!.data![index].name.toString(),
-                                      ))), hintText: LocaleKeys.subjectName.tr(),
-                            ):const SizedBox.shrink(),
-                            SizedBox(height:CacheHelper.getData(key: AppCached.role)==AppCached.teacher?
-                            height*0.32: height*0.39),
-                            state is BaseStatesLoadingState2 ? const CustomLoading():
-                            CustomButton(text: LocaleKeys.saveEdits.tr(), onPressed: () {
-                               cubit.profileEdits();
-                            }, widthBtn: width,),
-                            SizedBox(height: height*0.01),
-                                            
-                          ],
-                        ),
-                      ),
-                    ),
-                  )
-
-
-
-
+                  CustomArrow(
+                    text: LocaleKeys.editProfile.tr(),
+                  ),
+                  state is BaseStatesLoadingState
+                      ? const CustomLoading(
+                          fullScreen: true,
+                        )
+                      : state is BaseStatesErrorState
+                          ? Center(
+                              child: CustomError(
+                                  title: state.msg,
+                                  onPressed: () {
+                                    CacheHelper.getData(key: AppCached.role) == AppCached.student
+                                        ? cubit.fetchUser()
+                                        : cubit.fetchTeacher();
+                                  }))
+                          : Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: width * 0.07, vertical: width * 0.06),
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      CustomTextField(
+                                        ctrl: cubit.nameController,
+                                        hint: LocaleKeys.fullName.tr(),
+                                        prefixImg: AppImages.user,
+                                        isPrefixImg: true,
+                                        isCharOnly: true,
+                                      ),
+                                      CustomTextField(
+                                        ctrl: cubit.emailController,
+                                        hint: LocaleKeys.email.tr(),
+                                        prefixImg: AppImages.email,
+                                        isPrefixImg: true,
+                                        isEmail: true,
+                                      ),
+                                      CustomPhoneField(
+                                          ctrl: cubit.phoneController,
+                                          onChangedCode: (phone) {
+                                            cubit.getPhoneKey(phone.code, phone.dialCode);
+                                          },
+                                          onChangedPhone: (phone) {
+                                            cubit.getPhone(phone.number);
+                                          },
+                                          phoneKey: cubit.phoneKeyCode),
+                                      CustomTextField(
+                                        hint: LocaleKeys.classRoom.tr(),
+                                        prefixImg: AppImages.user,
+                                        isPrefixImg: true,
+                                        maxLines: CacheHelper.getData(key: AppCached.role) == AppCached.student?1:2,
+                                        readOnly: true,
+                                        ctrl: cubit.classRoomCtrl,
+                                        onTap: () {
+                                          showModalBottomSheet(
+                                            isScrollControlled: true,
+                                            context: context,
+                                            builder: (_) => BlocProvider.value(
+                                              value: context.read<EditProfileCubit>(),
+                                              child: BlocBuilder<EditProfileCubit, BaseStates>(
+                                                builder: (context, state) {
+                                                  return Padding(
+                                                    padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                                                    child: Column(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        children: List.generate(
+                                                          cubit.classroomModel!.data!.length,
+                                                          (index) => CheckboxListTile(
+                                                            title: Text(cubit.classroomModel!.data![index].name.toString()),
+                                                            value:
+                                                                cubit.selectedClassroomIds.contains(cubit.classroomModel!.data![index].id),
+                                                            onChanged: (val) => cubit.changeSelectedClassrooms(
+                                                                id: cubit.classroomModel!.data![index].id!,
+                                                                name: cubit.classroomModel!.data![index].name.toString()),
+                                                          ),
+                                                        )),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                      CacheHelper.getData(key: AppCached.role) == AppCached.teacher
+                                          ? CustomDropDown(
+                                              onChanged: (v) {
+                                                cubit.changeSubjectId(v);
+                                              },
+                                              dropDownValue: cubit.subjectId,
+                                              items: List.generate(
+                                                  cubit.subjectsModel!.data!.length,
+                                                  (index) => DropdownMenuItem<String>(
+                                                      value: cubit.subjectsModel!.data![index].id.toString(),
+                                                      child: Text(
+                                                        cubit.subjectsModel!.data![index].name.toString(),
+                                                      ))),
+                                              hintText: LocaleKeys.subjectName.tr(),
+                                            )
+                                          : const SizedBox.shrink(),
+                                      SizedBox(
+                                          height: CacheHelper.getData(key: AppCached.role) == AppCached.teacher
+                                              ? height * 0.32
+                                              : height * 0.39),
+                                      state is BaseStatesLoadingState2
+                                          ? const CustomLoading()
+                                          : CustomButton(
+                                              text: LocaleKeys.saveEdits.tr(),
+                                              onPressed: () {
+                                                cubit.profileEdits();
+                                              },
+                                              widthBtn: width,
+                                            ),
+                                      SizedBox(height: height * 0.01),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )
                 ],
               ),
             ),
-          );}));
+          );
+        }));
   }
 }

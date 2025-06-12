@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -35,6 +37,7 @@ myDio({required String endPoint,
         message: noInternet(navigatorKey.currentState!.context.locale.languageCode),
         data: null);
   } else {
+    log(AppConfig.baseUrl+endPoint);
     try {
       if (dioType == DioType.get) {
         response = await Dio(options).get(

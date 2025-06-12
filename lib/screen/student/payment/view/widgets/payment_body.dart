@@ -1,9 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moyasar/moyasar.dart';
 import '../../../../../core/utils/size.dart';
-import '../../../../../core/widgets/custom_toast.dart';
 import '../../controller/payment_cubit.dart';
 import '../../controller/payment_states.dart';
 
@@ -33,22 +31,22 @@ class PaymentBody extends StatelessWidget {
                            children: [
                              Column(
                                children: [
-                                 CreditCard(
-                                   locale: context.locale.languageCode =="ar"?const Localization.ar():const Localization.en(),
-                                   config: PaymentConfig(
-                                    publishableApiKey: "pk_test_r6eZg85QyduWZ7PNTHT56BFvZpxJgNJ2PqPMDoXA",
-                                     amount:price, // SAR 257.58
-                                     description: context.locale.languageCode =="ar"? 'الفريد':'Alfarid',
-                                     metadata: {'size': '250g'},
-                                     currency: 'SAR',
-                                   ),
-                                   onPaymentResult: (result) {
-                                     if (result is PaymentResponse) {
-                                       result.status==PaymentStatus.paid? cubit.buyBookFromCart():
-                                       showToast(text:"فشلت عملية الدفع", state: ToastStates.error);
-                                     }
-                                   },
-                                 ),
+                                 // CreditCard(
+                                 //   locale: context.locale.languageCode =="ar"?const Localization.ar():const Localization.en(),
+                                 //   config: PaymentConfig(
+                                 //    publishableApiKey: "pk_test_r6eZg85QyduWZ7PNTHT56BFvZpxJgNJ2PqPMDoXA",
+                                 //     amount:price, // SAR 257.58
+                                 //     description: context.locale.languageCode =="ar"? 'الفريد':'Alfarid',
+                                 //     metadata: {'size': '250g'},
+                                 //     currency: 'SAR',
+                                 //   ),
+                                 //   onPaymentResult: (result) {
+                                 //     if (result is PaymentResponse) {
+                                 //       result.status==PaymentStatus.paid? cubit.buyBookFromCart():
+                                 //       showToast(text:"فشلت عملية الدفع", state: ToastStates.error);
+                                 //     }
+                                 //   },
+                                 // ),
                                ],
                              ),
                            ],)
