@@ -183,7 +183,8 @@
   "areYouSureDeleteAcc": "Are you Sure Delete This Account",
   "yes": "Yes",
   "no": "No",
-  "deleteAcc": "Delete Account"
-
+  "deleteAcc": "Delete Account",
+  "offers": "Offers",
+  "coursesCount" : "Courses number:"
 
 }

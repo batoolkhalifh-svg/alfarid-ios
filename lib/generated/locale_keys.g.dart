@@ -186,5 +186,7 @@ abstract class  LocaleKeys {
   static const yes = 'yes';
   static const no = 'no';
   static const deleteAcc = 'deleteAcc';
+  static const offers = 'offers';
+  static const coursesCount = 'coursesCount';
 
 }

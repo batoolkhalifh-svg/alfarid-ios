@@ -1,6 +1,7 @@
 import 'package:alfarid/core/utils/images.dart';
 import 'package:alfarid/core/utils/size.dart';
 import 'package:alfarid/core/widgets/custom_loading.dart';
+import 'package:alfarid/screen/student/home/view/view/widgets/home_offers_sections.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../excellent_teacher/view/excellent_teacher_screen.dart';
@@ -34,7 +35,9 @@ class HomeLists extends StatelessWidget {
       });
       return SliverToBoxAdapter(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const HomeOffersSection(),
             CustomRow(
               title: cubit.titles[0],
               onTap: () {
@@ -68,6 +71,7 @@ class HomeLists extends StatelessWidget {
                           },
                         ),
             ),
+
             CustomRow(
               title: cubit.titles[1],
               onTap: () {

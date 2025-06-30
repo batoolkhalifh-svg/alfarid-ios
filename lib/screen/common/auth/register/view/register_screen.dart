@@ -69,7 +69,7 @@ class RegisterScreen extends StatelessWidget {
                   hint: LocaleKeys.classRoom.tr(),
                   prefixImg: AppImages.user,
                   isPrefixImg: true,
-                  maxLines: CacheHelper.getData(key: AppCached.role) == AppCached.student?1:2,
+                  maxLines: CacheHelper.getData(key: AppCached.role) == AppCached.student ? 1 : 2,
                   readOnly: true,
                   ctrl: TextEditingController.fromValue(
                     TextEditingValue(
@@ -84,20 +84,23 @@ class RegisterScreen extends StatelessWidget {
                         value: context.read<RegisterCubit>(),
                         child: BlocBuilder<RegisterCubit, BaseStates>(
                           builder: (context, state) {
-                            return Padding(
+                            return Container(
+                              constraints: BoxConstraints(maxHeight: height*0.7),
                               padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                              child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: List.generate(
-                                    cubit.classroomModel!.data!.length,
-                                    (index) => CheckboxListTile(
-                                      title: Text(cubit.classroomModel!.data![index].name.toString()),
-                                      value: cubit.selectedClassroomIds.contains(cubit.classroomModel!.data![index].id),
-                                      onChanged: (val) => cubit.changeSelectedClassrooms(
-                                          id: cubit.classroomModel!.data![index].id!,
-                                          name: cubit.classroomModel!.data![index].name.toString()),
-                                    ),
-                                  )),
+                              child: SingleChildScrollView(
+                                child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: List.generate(
+                                      cubit.classroomModel!.data!.length,
+                                      (index) => CheckboxListTile(
+                                        title: Text(cubit.classroomModel!.data![index].name.toString()),
+                                        value: cubit.selectedClassroomIds.contains(cubit.classroomModel!.data![index].id),
+                                        onChanged: (val) => cubit.changeSelectedClassrooms(
+                                            id: cubit.classroomModel!.data![index].id!,
+                                            name: cubit.classroomModel!.data![index].name.toString()),
+                                      ),
+                                    )),
+                              ),
                             );
                           },
                         ),
@@ -117,19 +120,48 @@ class RegisterScreen extends StatelessWidget {
                             padding: EdgeInsets.only(top: width * 0.025),
                             child: const Center(child: CustomLoading()),
                           )
-                        : CustomDropDown(
-                            onChanged: (v) {
-                              cubit.changeSubjectId(v);
+                        : CustomTextField(
+                            hint: LocaleKeys.subjectName.tr(),
+                            prefixImg: AppImages.user,
+                            isPrefixImg: true,
+                            maxLines: CacheHelper.getData(key: AppCached.role) == AppCached.student ? 1 : 2,
+                            readOnly: true,
+                            ctrl: TextEditingController.fromValue(
+                              TextEditingValue(
+                                text: cubit.selectedSubjectsNames.join(', '),
+                              ),
+                            ),
+                            onTap: () {
+                              showModalBottomSheet(
+                                isScrollControlled: true,
+                                context: context,
+                                builder: (_) => BlocProvider.value(
+                                  value: context.read<RegisterCubit>(),
+                                  child: BlocBuilder<RegisterCubit, BaseStates>(
+                                    builder: (context, state) {
+                                      return Container(
+                                        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                                        constraints: BoxConstraints(maxHeight: height*0.7),
+                                        child: SingleChildScrollView(
+                                          child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: List.generate(
+                                                cubit.subjectsModel!.data!.length,
+                                                (index) => CheckboxListTile(
+                                                  title: Text(cubit.subjectsModel!.data![index].name.toString()),
+                                                  value: cubit.selectedSubjectsIds.contains(cubit.subjectsModel!.data![index].id),
+                                                  onChanged: (val) => cubit.changeSelectedSubjects(
+                                                      id: cubit.subjectsModel!.data![index].id!,
+                                                      name: cubit.subjectsModel!.data![index].name.toString()),
+                                                ),
+                                              )),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              );
                             },
-                            dropDownValue: cubit.subjectId,
-                            items: List.generate(
-                                cubit.subjectsModel!.data!.length,
-                                (index) => DropdownMenuItem<String>(
-                                    value: cubit.subjectsModel!.data![index].id.toString(),
-                                    child: Text(
-                                      cubit.subjectsModel!.data![index].name.toString(),
-                                    ))),
-                            hintText: LocaleKeys.subjectName.tr(),
                           ),
                 SizedBox(height: height * 0.022),
                 state is BaseStatesLoadingState

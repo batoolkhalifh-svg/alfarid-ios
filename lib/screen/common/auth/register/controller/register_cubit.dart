@@ -40,13 +40,6 @@ class RegisterCubit extends Cubit<BaseStates> {
     emit(BaseStatesChangeState());
   }
 
-  String? subjectId;
-
-  void changeSubjectId(value) {
-    subjectId = value;
-    emit(BaseStatesChangeState());
-  }
-
   SubjectModel? subjectsModel;
 
   Future<void> fetchSubjects() async {
@@ -106,7 +99,7 @@ class RegisterCubit extends Cubit<BaseStates> {
       "phone_key": phoneKeyNumber,
       "phone": phone,
       "password": passController.text,
-      "subject_id": [subjectId],
+      "subject_id": selectedSubjectsIds,
       "classroom_id": selectedClassroomIds,
       "device_id": await getDeviceId(),
       "firebase_token": fireToken,
@@ -169,7 +162,28 @@ class RegisterCubit extends Cubit<BaseStates> {
 
   List<int> selectedClassroomIds = [];
   List<String> selectedClassroomNames = [];
+  List<int> selectedSubjectsIds = [];
+  List<String> selectedSubjectsNames = [];
 
+  void changeSelectedSubjects({required int id, required String name}) {
+    final isStudent = CacheHelper.getData(key: AppCached.role) == AppCached.student;
+
+    if (isStudent) {
+      selectedSubjectsIds..clear()..add(id);
+
+      selectedSubjectsNames..clear()..add(name);
+    } else {
+      if (selectedSubjectsIds.contains(id)) {
+        selectedSubjectsIds.remove(id);
+        selectedSubjectsNames.remove(name);
+      } else {
+        selectedSubjectsIds.add(id);
+        selectedSubjectsNames.add(name);
+      }
+    }
+
+    emit(BaseStatesChangeState());
+  }
   void changeSelectedClassrooms({required int id, required String name}) {
     final isStudent = CacheHelper.getData(key: AppCached.role) == AppCached.student;
 

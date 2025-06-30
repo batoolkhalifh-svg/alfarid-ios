@@ -8,6 +8,8 @@ class AppConfig {
   static const String login = "auth/login";
   static const String editPassStudent = "student/update-password";
   static const String banners = "student/banners";
+  static const String offers = "student/offers";
+  static const String subscribeOffers = "student/offers/subscribe";
   static const String subjects = "subjects";
   static const String classrooms = "classrooms";
   static const String search = "student/search?search=";

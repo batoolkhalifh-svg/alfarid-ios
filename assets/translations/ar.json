@@ -183,5 +183,7 @@
   "areYouSureDeleteAcc": "هل انت متأكد من حذف الحساب",
   "yes": "نعم",
   "no": "لا",
-  "deleteAcc": "حذف الحساب"
+  "deleteAcc": "حذف الحساب",
+  "offers": "العروض",
+  "coursesCount" : "عدد الكورسات:"
 }
