@@ -74,7 +74,7 @@ class HomeOffersSection extends StatelessWidget {
                           ),
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: width * 0.02),
-                            child: Text(cubit.offersModel[index].price.toString(),
+                            child: Text(LocaleKeys.qAr.tr(args: [cubit.offersModel[index].price.toString()]),
                                 style: Styles.textStyle14.copyWith(color: AppColors.mainColor2, fontSize: 15.sp)),
                           ),
                           CustomButton(

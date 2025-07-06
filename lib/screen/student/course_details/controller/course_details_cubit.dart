@@ -1,10 +1,8 @@
 import 'package:alfarid/core/local/cache_helper.dart';
 import 'package:alfarid/core/utils/my_navigate.dart';
-import 'package:alfarid/screen/student/payment/view/payment_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pod_player/pod_player.dart';
 import '../../../../core/local/app_cached.dart';
 import '../../../../core/local/app_config.dart';
 import '../../../../core/remote/my_dio.dart';

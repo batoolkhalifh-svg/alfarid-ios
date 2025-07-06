@@ -94,16 +94,18 @@ class CourseDetailsBody extends StatelessWidget {
                                               Row(
                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: [
-                                                  Container(
-                                                    padding: EdgeInsets.symmetric(vertical: width * 0.01, horizontal: width * 0.018),
-                                                    decoration: BoxDecoration(
-                                                        color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.r8)),
-                                                    child: Text(
-                                                      cubit.courseDetailsModel!.data!.price.toString(),
-                                                      style: Styles.textStyle14
-                                                          .copyWith(fontFamily: AppFonts.mulishExtraBold, color: AppColors.mainColor),
+                                                  if (cubit.courseDetailsModel!.data!.price != null &&
+                                                      cubit.courseDetailsModel!.data!.price.toString() != '0')
+                                                    Container(
+                                                      padding: EdgeInsets.symmetric(vertical: width * 0.01, horizontal: width * 0.018),
+                                                      decoration: BoxDecoration(
+                                                          color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.r8)),
+                                                      child: Text(
+                                                        LocaleKeys.qAr.tr(args: [cubit.courseDetailsModel!.data!.price.toString()]),
+                                                        style: Styles.textStyle14
+                                                            .copyWith(fontFamily: AppFonts.mulishExtraBold, color: AppColors.mainColor),
+                                                      ),
                                                     ),
-                                                  ),
                                                   Row(
                                                     mainAxisAlignment: MainAxisAlignment.center,
                                                     children: [

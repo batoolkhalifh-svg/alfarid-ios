@@ -1,3 +1,6 @@
+import 'package:alfarid/core/remote/my_dio.dart';
+import 'package:alfarid/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -38,7 +41,7 @@ class CartItem extends StatelessWidget {
                   width: width*0.4,
                   child: Text(name, style: Styles.textStyle14.copyWith(color: AppColors.blackColor,fontWeight: FontWeight.bold),)),
               SizedBox(height: width*0.03),
-              Text(price, style: Styles.textStyle14.copyWith(color: Colors.green,fontFamily: AppFonts.almaraiBold,fontWeight: FontWeight.bold),),
+              Text(LocaleKeys.qAr.tr(args: [price]) , style: Styles.textStyle14.copyWith(color: Colors.green,fontFamily: AppFonts.almaraiBold,fontWeight: FontWeight.bold),),
             ],
           ),
           const Spacer(),

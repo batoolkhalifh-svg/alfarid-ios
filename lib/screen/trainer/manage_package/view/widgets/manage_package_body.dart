@@ -85,7 +85,7 @@ class ManagePackageBody extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   Text(LocaleKeys.packagePrice.tr(),style: Styles.textStyle12.copyWith(color: AppColors.grayColor)),
-                                  Text(cubit.packageModel!.data!.price.toString(),style: Styles.textStyle12.copyWith(color: AppColors.blackColor2,fontFamily: AppFonts.almaraiBold)),
+                                  Text(LocaleKeys.qAr.tr(args: [cubit.packageModel!.data!.price.toString()]),style: Styles.textStyle12.copyWith(color: AppColors.blackColor2,fontFamily: AppFonts.almaraiBold)),
                                    ],
                               ),
                               SizedBox(height: width*0.02),

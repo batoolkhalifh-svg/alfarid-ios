@@ -201,7 +201,8 @@ class CodegenLoader extends AssetLoader{
   "no": "No",
   "deleteAcc": "Delete Account",
   "offers": "Offers",
-  "coursesCount": "Courses number:"
+  "coursesCount": "Courses number:",
+  "qAr": "QAR {}"
 };
 static const Map<String,dynamic> ar = {
   "next": "التالي",
@@ -390,7 +391,8 @@ static const Map<String,dynamic> ar = {
   "no": "لا",
   "deleteAcc": "حذف الحساب",
   "offers": "العروض",
-  "coursesCount": "عدد الكورسات:"
+  "coursesCount": "عدد الكورسات:",
+  "qAr": "{} ر.ق"
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"en": en, "ar": ar};
 }

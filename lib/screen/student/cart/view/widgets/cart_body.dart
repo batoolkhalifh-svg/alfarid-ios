@@ -78,7 +78,7 @@ class CartBody extends StatelessWidget {
                                         ),
                                         SizedBox(height: height * 0.015),
                                         SizedBox(
-                                          height: height * 0.67,
+                                          height: height * 0.6,
                                           child: ListView.separated(
                                               padding: EdgeInsetsDirectional.symmetric(vertical: height * 0.024),
                                               itemBuilder: (context, index) {

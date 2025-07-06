@@ -70,8 +70,6 @@ class CartCubit extends Cubit<BaseStates> {
     Map<dynamic, dynamic> response = await myDio(endPoint: AppConfig.buyBookFromCart, dioType: DioType.get);
     debugPrint(response.toString());
     if (response["status"] == true) {
-      // showToast(text: response['message'], state: ToastStates.success);
-      // navigateAndFinish(widget: const BottomNavScreen());
       Navigator.push(
         navigatorKey.currentState!.context,
         MaterialPageRoute(

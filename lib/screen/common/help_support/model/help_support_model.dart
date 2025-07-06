@@ -13,7 +13,7 @@ class HelpAndSupportModel {
 }
 
 class Data {
-  String? phone;
+  String? phone,phone1,phone2;
   String? email;
   String? whatsapp;
 
@@ -21,6 +21,8 @@ class Data {
 
   Data.fromJson(Map<String, dynamic> json) {
     phone = json['phone'];
+    phone1 = json['phone_2'];
+    phone2 = json['phone_3'];
     email = json['email'];
     whatsapp = json['whatsapp'];
   }

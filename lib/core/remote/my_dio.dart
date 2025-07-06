@@ -37,7 +37,6 @@ myDio({required String endPoint,
         message: noInternet(navigatorKey.currentState!.context.locale.languageCode),
         data: null);
   } else {
-    log(AppConfig.baseUrl+endPoint);
     try {
       if (dioType == DioType.get) {
         response = await Dio(options).get(
@@ -71,7 +70,8 @@ myDio({required String endPoint,
           return onError;
         });
       }
-      debugPrint('Response is >>> ${response!.statusCode}');
+      log('url is >>> ${AppConfig.baseUrl+endPoint}');
+      debugPrint('Response is >>> ${response!.data}');
 
       if (response.statusCode! >= 200 && response.statusCode! <= 299) {
         return responseMap(

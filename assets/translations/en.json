@@ -185,6 +185,7 @@
   "no": "No",
   "deleteAcc": "Delete Account",
   "offers": "Offers",
-  "coursesCount" : "Courses number:"
+  "coursesCount" : "Courses number:",
+  "qAr" : "QAR {}"
 
 }

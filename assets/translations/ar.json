@@ -185,5 +185,6 @@
   "no": "لا",
   "deleteAcc": "حذف الحساب",
   "offers": "العروض",
-  "coursesCount" : "عدد الكورسات:"
+  "coursesCount" : "عدد الكورسات:",
+  "qAr" : "{} ر.ق"
 }

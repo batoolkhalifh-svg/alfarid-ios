@@ -1,4 +1,6 @@
 import 'package:alfarid/core/utils/my_navigate.dart';
+import 'package:alfarid/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -25,7 +27,7 @@ class ImportantListItem extends StatelessWidget {
           navigateTo(widget: CourseDetailsScreen(id: cubit.data[index].id!,));
         },
         child: Container(
-          width: width*0.55,
+          // width: width*0.55,
           alignment: AlignmentDirectional.topStart,
           decoration: BoxDecoration(
               color: Colors.white,
@@ -64,7 +66,8 @@ class ImportantListItem extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: width*0.02),
                 child: Row(
                   children: [
-                    Text(cubit.data[index].price.toString(),style: Styles.textStyle14.copyWith(color: AppColors.mainColor2,fontSize: 15.sp)),
+                    if(cubit.data[index].price!=null &&cubit.data[index].price.toString()!='0')
+                    Text(LocaleKeys.qAr.tr(args: [cubit.data[index].price.toString()]),style: Styles.textStyle14.copyWith(color: AppColors.mainColor2,fontSize: 15.sp)),
                     Image.asset(AppImages.tallDash,width: width*0.05,height: height*0.06),
                     Text(cubit.data[index].teacher!.name.toString(),style: Styles.textStyle14.copyWith(color: AppColors.blackColor,fontFamily: AppFonts.almaraiRegular)),
                     SizedBox(width: width*0.01,),
