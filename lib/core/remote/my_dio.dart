@@ -71,7 +71,9 @@ myDio({required String endPoint,
         });
       }
       log('url is >>> ${AppConfig.baseUrl+endPoint}');
-      debugPrint('Response is >>> ${response!.data}');
+      log('token is >>> ${CacheHelper.getData(key: AppCached.token)}');
+      log('statusCode is  >>> ${response!.statusCode}');
+      debugPrint('Response is >>> ${response.data}');
 
       if (response.statusCode! >= 200 && response.statusCode! <= 299) {
         return responseMap(

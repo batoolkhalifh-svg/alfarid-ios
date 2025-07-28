@@ -1,3 +1,5 @@
+import 'package:alfarid/core/utils/my_navigate.dart';
+import 'package:alfarid/screen/trainer/bottom_nav_teacher/view/widgets/bottom_nav_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/widgets/base_state.dart';
@@ -35,6 +37,7 @@ class OrderDetailsCubit extends Cubit<BaseStates> {
     debugPrint(response.toString());
     if(response["status"]==true){
       showToast(text: response["message"], state: ToastStates.success);
+      navigateAndFinish(widget: const BottomNavBody());
       orderDetailsModel = OrdersDetailsModel.fromJson(response);
       emit(BaseStatesSuccessState());
     }else{

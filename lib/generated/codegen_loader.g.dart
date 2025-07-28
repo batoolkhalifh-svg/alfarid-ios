@@ -202,7 +202,23 @@ class CodegenLoader extends AssetLoader{
   "deleteAcc": "Delete Account",
   "offers": "Offers",
   "coursesCount": "Courses number:",
-  "qAr": "QAR {}"
+  "qAr": "QAR {}",
+  "saturday": "Saturday",
+  "sunday": "Sunday",
+  "monday": "Monday",
+  "tuesday": "Tuesday",
+  "wednesday": "Wednesday",
+  "thursday": "Thursday",
+  "friday": "Friday",
+  "timetable": "Timetable",
+  "days": "Days",
+  "startTime": "Start time",
+  "endTime": "End time",
+  "bookingPrivateSession": "Booking private sessions with teacher",
+  "availableDays": "Available days",
+  "availableTimes": "Available times",
+  "noteMustBeInRange": "Note : You have to select day and time in available range",
+  "to": "To"
 };
 static const Map<String,dynamic> ar = {
   "next": "التالي",
@@ -392,7 +408,23 @@ static const Map<String,dynamic> ar = {
   "deleteAcc": "حذف الحساب",
   "offers": "العروض",
   "coursesCount": "عدد الكورسات:",
-  "qAr": "{} ر.ق"
+  "qAr": "{} ر.ق",
+  "saturday": "السبت",
+  "sunday": "الأحد",
+  "monday": "الاثنين",
+  "tuesday": "الثلاثاء",
+  "wednesday": "الأربعاء",
+  "thursday": "الخميس",
+  "friday": "الجمعه",
+  "timetable": "مواعيد الحصص",
+  "days": "الآيام",
+  "startTime": "بدايه الوقت",
+  "endTime": "نهايه الوقت",
+  "bookingPrivateSession": "حجز حصة خاصة مع المعلم",
+  "availableDays": "الآيام المتاحه",
+  "availableTimes": "الاوقات المتاحه",
+  "noteMustBeInRange": "ملاحظه: يجب ان يكون ميعاد الحصه داخل نطاق الوقت الذي حدده المدرس",
+  "to": "الى"
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"en": en, "ar": ar};
 }

@@ -53,9 +53,6 @@ class ChatBody extends StatelessWidget {
                                 child: ListView.separated(
                                   itemBuilder: (context, index) => ChatItem(
                                     onTapItem: (){
-                                      print(users[index]["id"]);
-                                      print(users[index]["name"]);
-                                      print(users[index]["image_url"]);
                                       navigateTo(widget:
                                       ChatDetailsScreen(id: users[index]["id"],receiverName:users[index]["name"] ,
                                         recImg: users[index]["image_url"]??"https://alfarid.tarmez.top/app/images/user.png",));

@@ -93,11 +93,11 @@ class CustomCourseItem extends StatelessWidget {
                           SizedBox(
                             width: width * 0.01,
                           ),
-                          Text(teacherName ?? "",
-                              style: Styles.textStyle14.copyWith(color: AppColors.blackColor, fontFamily: AppFonts.almaraiRegular)),
-                          SizedBox(
-                            width: width * 0.01,
+                          Expanded(
+                            child: Text(teacherName ?? "",
+                                style: Styles.textStyle14.copyWith(color: AppColors.blackColor, fontFamily: AppFonts.almaraiRegular)),
                           ),
+
                           teacherName == null
                               ? const SizedBox.shrink()
                               : const Icon(

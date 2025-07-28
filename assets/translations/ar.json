@@ -186,5 +186,21 @@
   "deleteAcc": "حذف الحساب",
   "offers": "العروض",
   "coursesCount" : "عدد الكورسات:",
-  "qAr" : "{} ر.ق"
+  "qAr" : "{} ر.ق",
+  "saturday": "السبت",
+  "sunday": "الأحد",
+  "monday": "الاثنين",
+  "tuesday": "الثلاثاء",
+  "wednesday": "الأربعاء",
+  "thursday": "الخميس",
+  "friday": "الجمعه",
+  "timetable": "مواعيد الحصص",
+  "days": "الآيام",
+  "startTime": "بدايه الوقت",
+  "endTime": "نهايه الوقت",
+  "bookingPrivateSession": "حجز حصة خاصة مع المعلم",
+  "availableDays": "الآيام المتاحه",
+  "availableTimes": "الاوقات المتاحه",
+  "noteMustBeInRange": "ملاحظه: يجب ان يكون ميعاد الحصه داخل نطاق الوقت الذي حدده المدرس",
+  "to": "الى"
 }

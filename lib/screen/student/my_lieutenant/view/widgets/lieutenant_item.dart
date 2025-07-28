@@ -63,7 +63,7 @@ class LieutenantItem extends StatelessWidget {
             Row(
               children: [
                 SizedBox(
-                    width: width * 0.3,
+                    width: width * 0.2,
                     child: Text(
                       name,
                       style: Styles.textStyle12.copyWith(color: AppColors.blackColor, fontWeight: FontWeight.bold),

@@ -29,6 +29,7 @@ class Data {
   int? coursesCount;
   List<ItemsRate>? rates;
   List<ItemsCourses>? courses;
+  List<Availability>? availability;
 
   Data(
       {this.id,
@@ -41,7 +42,8 @@ class Data {
         this.isNotified,
         this.studentsCount,
         this.rate,
-        this.rateCount,
+        this.rateCount,      this.availability,
+
         this.coursesCount,
         this.rates,
         this.courses});
@@ -66,6 +68,12 @@ class Data {
       });
     } else {
       rates = [];
+    }
+    if (json['availability'] != null) {
+      availability = <Availability>[];
+      json['availability'].forEach((v) {
+        availability!.add(new Availability.fromJson(v));
+      });
     }
     if (json['courses'] != null && json['courses']['items'] != null) {
       courses = <ItemsCourses>[];
@@ -203,5 +211,20 @@ class Teacher {
     name = json['name'];
     image = json['image'];
     subject = json['subject'];
+  }
+}
+class Availability {
+  int? id;
+  List<String>? days;
+  String? timeFrom;
+  String? timeTo;
+
+  Availability({this.id, this.days, this.timeFrom, this.timeTo});
+
+  Availability.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    days = json['days'].cast<String>();
+    timeFrom = json['time_from'];
+    timeTo = json['time_to'];
   }
 }

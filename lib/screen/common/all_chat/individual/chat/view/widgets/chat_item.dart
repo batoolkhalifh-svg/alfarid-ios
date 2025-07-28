@@ -30,22 +30,24 @@ class ChatItem extends StatelessWidget {
              backgroundImage:img==null?const AssetImage(AppImages.groupImg): NetworkImage(img!),
       ),
               SizedBox(width:width*.02),
-              Column(
-                crossAxisAlignment:msg==''?CrossAxisAlignment.center:CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: width*.45,
-                    child: Text(name,style: Styles.textStyle14.copyWith(
-                      color: AppColors.blackColor2,
-                      fontFamily: AppFonts.almaraiRegular
-                    ),overflow: TextOverflow.ellipsis),
-                  ),
-                  msg==''?const SizedBox.shrink():SizedBox(height: height*.01,),
-                  msg==''?const SizedBox.shrink():
-                  SizedBox(
-                    width: width*.45,
-                    child: Text(msg,style: Styles.textStyle12,overflow: TextOverflow.ellipsis,))
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment:msg==''?CrossAxisAlignment.center:CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: width*.45,
+                      child: Text(name,style: Styles.textStyle14.copyWith(
+                        color: AppColors.blackColor2,
+                        fontFamily: AppFonts.almaraiRegular
+                      ),overflow: TextOverflow.ellipsis),
+                    ),
+                    msg==''?const SizedBox.shrink():SizedBox(height: height*.01,),
+                    msg==''?const SizedBox.shrink():
+                    SizedBox(
+                      width: width*.45,
+                      child: Text(msg,style: Styles.textStyle12,overflow: TextOverflow.ellipsis,))
+                  ],
+                ),
               ),
               const Spacer(),
               Column(

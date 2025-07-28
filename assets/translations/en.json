@@ -186,6 +186,22 @@
   "deleteAcc": "Delete Account",
   "offers": "Offers",
   "coursesCount" : "Courses number:",
-  "qAr" : "QAR {}"
+  "qAr" : "QAR {}",
+  "saturday": "Saturday",
+  "sunday": "Sunday",
+  "monday": "Monday",
+  "tuesday": "Tuesday",
+  "wednesday": "Wednesday",
+  "thursday": "Thursday",
+  "friday": "Friday",
+  "timetable": "Timetable",
+  "days": "Days",
+  "startTime": "Start time",
+  "endTime": "End time",
+  "bookingPrivateSession": "Booking private sessions with teacher",
+  "availableDays": "Available days",
+  "availableTimes": "Available times",
+  "noteMustBeInRange": "Note : You have to select day and time in available range",
+  "to": "To"
 
 }

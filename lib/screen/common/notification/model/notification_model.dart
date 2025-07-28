@@ -38,7 +38,7 @@ class Data {
 class Items {
   String? id;
   String? title;
-  String? body;
+  String? body,type;
   String? icon;
 
   Items({this.id, this.title, this.body, this.icon});
@@ -47,6 +47,7 @@ class Items {
     id = json['id'];
     title = json['title'];
     body = json['body'];
+    type = json['type'];
     icon = json['icon'];
   }
 

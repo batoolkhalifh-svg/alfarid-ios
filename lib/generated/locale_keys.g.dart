@@ -189,5 +189,21 @@ abstract class  LocaleKeys {
   static const offers = 'offers';
   static const coursesCount = 'coursesCount';
   static const qAr = 'qAr';
+  static const saturday = 'saturday';
+  static const sunday = 'sunday';
+  static const monday = 'monday';
+  static const tuesday = 'tuesday';
+  static const wednesday = 'wednesday';
+  static const thursday = 'thursday';
+  static const friday = 'friday';
+  static const timetable = 'timetable';
+  static const days = 'days';
+  static const startTime = 'startTime';
+  static const endTime = 'endTime';
+  static const bookingPrivateSession = 'bookingPrivateSession';
+  static const availableDays = 'availableDays';
+  static const availableTimes = 'availableTimes';
+  static const noteMustBeInRange = 'noteMustBeInRange';
+  static const to = 'to';
 
 }

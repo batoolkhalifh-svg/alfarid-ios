@@ -48,7 +48,7 @@ class ImportantCoursesBody extends StatelessWidget {
                               cubit.coursesModel!.data!.items!.isEmpty?
                               Center(child: EmptyList(img: AppImages.emptyCourses, text: LocaleKeys.noCourses.tr(),)):
                               SizedBox(
-                                height: height*0.77,
+                                height: height*0.7,
                                 child: ListView.separated(
                                   controller: controller,
                                     padding: EdgeInsetsDirectional.symmetric(vertical: height*0.024),

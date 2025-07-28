@@ -7,6 +7,7 @@ import 'package:alfarid/core/utils/styles.dart';
 import 'package:alfarid/core/widgets/custom_btn.dart';
 import 'package:alfarid/core/widgets/custom_loading.dart';
 import 'package:alfarid/screen/student/course_details/view/course_details_screen.dart';
+import 'package:alfarid/screen/student/teacher_profile/view/widgets/booking_sheet.dart';
 import 'package:alfarid/screen/student/teacher_profile/view/widgets/review_item.dart';
 import 'package:alfarid/screen/student/teacher_profile/view/widgets/tab_item.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -98,19 +99,21 @@ class TeacherProfileBody extends StatelessWidget {
                                           ? MainAxisAlignment.center
                                           : MainAxisAlignment.spaceEvenly,
                                       children: [
-                                        state is BaseStatesLoadingState2
-                                            ? Padding(
-                                                padding: EdgeInsets.symmetric(horizontal: width * 0.11),
-                                                child: const CustomLoading(),
-                                              )
-                                            : CacheHelper.getData(key: AppCached.isApple) == true
+                                        CacheHelper.getData(key: AppCached.isApple) == true
                                                 ? const SizedBox()
                                                 : CustomButtonTeacher(
                                                     isDirectBooking: true,
                                                     onTap: () {
-                                                      CacheHelper.getData(key: AppCached.token) == null
-                                                          ? showDialog(context: context, builder: (context) => const CustomAlertDialog())
-                                                          : cubit.directReserve(id: id);
+                                                      if(cubit.teacherProfileModel!.data!.availability!.isNotEmpty)
+                                                      showModalBottomSheet(
+                                                        isScrollControlled: true,
+                                                        context: context, builder: (_) => BlocProvider.value(
+                                                        value: context.read<TeacherProfileCubit>(),
+                                                        child: const BookingSheet(),
+                                                      ),);
+                                                      // CacheHelper.getData(key: AppCached.token) == null
+                                                      //     ? showDialog(context: context, builder: (context) => const CustomAlertDialog())
+                                                      //     : cubit.directReserve(id: id);
                                                     },
                                                   ),
                                         CustomButtonTeacher(
