@@ -55,7 +55,7 @@ class OrderBody extends StatelessWidget {
                             ),
                             SizedBox(height: height*0.025),
                             SizedBox(
-                              height: height*0.68,
+                              height: height*0.6,
                               child: cubit.isCurrent==true?
                               cubit.currentOrderModel!.data!.isEmpty?
                               Center(child: Text(LocaleKeys.noReservations.tr(),style: Styles.textStyle14.copyWith(color: AppColors.mainColorText))):

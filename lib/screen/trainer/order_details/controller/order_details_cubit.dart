@@ -1,11 +1,14 @@
 import 'package:alfarid/core/utils/my_navigate.dart';
 import 'package:alfarid/screen/trainer/bottom_nav_teacher/view/widgets/bottom_nav_body.dart';
+import 'package:alfarid/screen/trainer/timetable/controller/timetable_cubit.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/widgets/base_state.dart';
 import '../../../../core/local/app_config.dart';
 import '../../../../core/remote/my_dio.dart';
 import '../../../../core/widgets/custom_toast.dart';
+import '../../../../generated/locale_keys.g.dart';
 import '../model/order_details_model.dart';
 
 
@@ -22,6 +25,9 @@ class OrderDetailsCubit extends Cubit<BaseStates> {
     debugPrint(response.toString());
     if(response["status"]==true){
       orderDetailsModel = OrdersDetailsModel.fromJson(response);
+      final List<String> responsDays=orderDetailsModel!.data!.days??[];
+      // availableDays = weekDays.where((element) => respDays.contains(element.key)).toList();
+      daysList=weekDays.where((element) => responsDays.contains(element.key)).toList();
       emit(BaseStatesSuccessState());
     }else{
       emit(BaseStatesErrorState(msg: response["message"]));
@@ -45,4 +51,15 @@ class OrderDetailsCubit extends Cubit<BaseStates> {
     }
   }
 
+  late List<DayModel> daysList;
+  List<DayModel> weekDays = [
+    DayModel(day: LocaleKeys.saturday.tr(), key: 'saturday'),
+    DayModel(day: LocaleKeys.sunday.tr(), key: 'sunday'),
+    DayModel(day: LocaleKeys.monday.tr(), key: 'monday'),
+    DayModel(day: LocaleKeys.tuesday.tr(), key: 'tuesday'),
+    DayModel(day: LocaleKeys.wednesday.tr(), key: 'wednesday'),
+    DayModel(day: LocaleKeys.thursday.tr(), key: 'thursday'),
+    DayModel(day: LocaleKeys.friday.tr(), key: 'friday'),
+  ];
+  
 }

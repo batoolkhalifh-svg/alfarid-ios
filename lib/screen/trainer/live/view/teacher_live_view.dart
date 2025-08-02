@@ -45,18 +45,14 @@ class TeacherLive extends StatelessWidget {
                               ],
                             ),
                           ):
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: width * 0.07, vertical: width * 0.03),
-                        child: SizedBox(
-                          height: height*0.84,
-                          child: ListView.separated(
-                              shrinkWrap: true,
-                              physics: const BouncingScrollPhysics(),
-                              itemBuilder: (context, index) => LiveItem(cubit: cubit,index: index),
-                              separatorBuilder: (context, index) => SizedBox(height: height * 0.02),
-                              itemCount: cubit.lives.length)
-                        ),
-                      )
+                          Expanded(
+                            child: ListView.separated(
+                                shrinkWrap: true,
+                                physics: const BouncingScrollPhysics(),
+                                itemBuilder: (context, index) => LiveItem(cubit: cubit,index: index),
+                                separatorBuilder: (context, index) => SizedBox(height: height * 0.02),
+                                itemCount: cubit.lives.length),
+                          )
                     ]),
               ));
         }

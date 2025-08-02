@@ -8,6 +8,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../../core/utils/images.dart';
 import '../../../../../../core/utils/size.dart';
@@ -67,10 +68,28 @@ class CustomHomeHeader extends StatelessWidget {
                           ? showDialog(context: context, builder: (context) => const CustomAlertDialog())
                           : navigateTo(widget: const NotificationScreen());
                     },
-                    child: Image.asset(
-                      AppImages.notification,
-                      width: width * 0.11,
-                    ),
+                    child: CircleAvatar(
+                        backgroundColor: Colors.white,
+                        child: Stack(
+                          alignment: AlignmentDirectional.topStart,
+                          children: [
+                            Icon(
+                              Icons.notifications_none_outlined,
+                              color: AppColors.mainColor,
+                              size: 33.w,
+                            ),
+                            if(state is !LoadingHomeState&&state is !ErrorHomeState)
+                              if(cubit.bannersModel!.data!.notificationsCount!>0)
+                              Container(
+                                padding: EdgeInsets.all(3.h),
+                                decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle
+                                ),
+                                child: Text(cubit.bannersModel!.data!.notificationsCount.toString()),
+                              )
+                          ],
+                        )),
                   )
                 ],
               ),
@@ -109,13 +128,13 @@ class CustomHomeHeader extends StatelessWidget {
                   )
                 : CarouselSlider(
                     items: List.generate(
-                      cubit.bannersModel!.data!.length,
+                      cubit.bannersModel!.data!.banners!.length,
                       (index) => Padding(
                           padding: EdgeInsets.symmetric(horizontal: width * .045),
                           child: CustomNetworkImg(
                             width: width,
                             fit: BoxFit.fill,
-                            img: cubit.bannersModel!.data![index].image!,
+                            img: cubit.bannersModel!.data!.banners![index].image!,
                           )),
                     ),
                     options: CarouselOptions(

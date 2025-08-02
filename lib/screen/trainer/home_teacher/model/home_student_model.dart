@@ -15,7 +15,7 @@ class StudentsHomeModel {
 
 class Data {
   List<Reservations>? reservations;
-  int? reservationsCount;
+  int? reservationsCount,notificationsCount;
   int? courses;
 
   Data({this.reservations, this.reservationsCount, this.courses});
@@ -29,6 +29,7 @@ class Data {
     }
     reservationsCount = json['reservations_count'];
     courses = json['courses'];
+    notificationsCount = json['notifications_count']??0;
   }
 }
 

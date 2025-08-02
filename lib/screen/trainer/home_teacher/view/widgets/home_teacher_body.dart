@@ -46,7 +46,6 @@ class HomeTeacherBody extends StatelessWidget {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    const CustomTeacherHeader(),
                     Padding(
                       padding: EdgeInsets.only(left: width * 0.05, top: height * 0.02, right: width * 0.05),
                       child: state is LoadingHomeState
@@ -69,6 +68,7 @@ class HomeTeacherBody extends StatelessWidget {
                               : Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    const CustomTeacherHeader(),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
