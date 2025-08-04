@@ -1,5 +1,8 @@
+import 'package:alfarid/core/utils/colors.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/utils/images.dart';
 import '../../../../core/utils/size.dart';
@@ -58,6 +61,19 @@ class _LiveItemState extends State<LiveItem> {
                     horizontal: width * 0.04,
                     vertical: width * 0.04),
                 child: Column(children: [
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 9.h),
+                    child: InkWell(
+                      onTap: ()=>Clipboard.setData(ClipboardData(text: widget.cubit.lives[widget.index].link)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(LocaleKeys.copy.tr(),style: TextStyle(fontSize: 14.sp,fontWeight: FontWeight.bold,color: AppColors.mainColor)),
+                          const Icon(Icons.copy,color: AppColors.mainColor,)
+                        ],
+                      ),
+                    ),
+                  ),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
