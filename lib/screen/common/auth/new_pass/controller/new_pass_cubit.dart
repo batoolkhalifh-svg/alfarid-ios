@@ -28,6 +28,12 @@ class NewPassCubit extends Cubit<BaseStates> {
           "new_password":passController.text,
           "new_password_confirmation":confirmPassController.text
         });
+    debugPrint({
+      "register_type" :CacheHelper.getData(key: AppCached.role)==AppCached.student?"student":"teacher",
+      "email" : email,
+      "new_password":passController.text,
+      "new_password_confirmation":confirmPassController.text
+    }.toString());
     debugPrint(response.toString());
     if(response["status"]) {
       showToast(text: response["message"], state: ToastStates.success);

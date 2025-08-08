@@ -41,7 +41,7 @@ class BookingSheet extends StatelessWidget {
                         borderRadius: BorderRadius.circular(13.r),
                         border: Border.all(color: cubit.selectedDays.contains(cubit.weekDays[index]) ? AppColors.mainColor : Colors.grey)),
                     child: Text(
-                      cubit.weekDays[index].day,
+                      cubit.availableDays[index].day,
                       style: TextStyle(
                           fontSize: 16.sp, color: cubit.selectedDays.contains(cubit.weekDays[index]) ? AppColors.mainColor : Colors.black),
                     ),

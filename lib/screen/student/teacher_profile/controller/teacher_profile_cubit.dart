@@ -126,5 +126,6 @@ class TeacherProfileCubit extends Cubit<BaseStates> {
     DayModel(day: LocaleKeys.tuesday.tr(), key: 'tuesday'),
     DayModel(day: LocaleKeys.wednesday.tr(), key: 'wednesday'),
     DayModel(day: LocaleKeys.thursday.tr(), key: 'thursday'),
+    DayModel(day: LocaleKeys.friday.tr(), key: 'friday'),
   ];
 }

@@ -40,7 +40,7 @@ class LoginCubit extends Cubit<BaseStates> {
     final formDataStudent = ({
       "register_type" : "student",
       "email" :kDebugMode?'kamalabozyed0@gmail.com':emailController.text,
-      "password":kDebugMode? 'password':passController.text,
+      "password":kDebugMode? 'Password12?!':passController.text,
       "firebase_token" :fireToken,
       "device_id" : await getDeviceId(),
     });
