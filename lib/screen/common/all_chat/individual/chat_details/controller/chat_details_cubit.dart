@@ -163,11 +163,11 @@ class ChatDetailsCubit extends Cubit<ChatDetailsStates>{
         }),
         markUnreadMessagesAsRead(recId),
         // إرسال إشعار للمستقبل
-        PushNotificationsService.sendNotification(
+       /* PushNotificationsService.sendNotification(
           msg: messageContent,
           token: receiverCollection["fire_token"],
           name: myName,
-        ),
+        ),*/
       ]);
       FocusScope.of(context).unfocus();
       scrollToBottom();
