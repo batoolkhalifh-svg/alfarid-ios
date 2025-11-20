@@ -215,16 +215,35 @@ class Teacher {
 }
 class Availability {
   int? id;
-  List<String>? days;
-  String? timeFrom;
-  String? timeTo;
+  List<DayAvailability>? days;
 
-  Availability({this.id, this.days, this.timeFrom, this.timeTo});
+  Availability({this.id, this.days});
 
   Availability.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    days = json['days'].cast<String>();
-    timeFrom = json['time_from'];
-    timeTo = json['time_to'];
+    if (json['days'] != null) {
+      days = [];
+      json['days'].forEach((v) {
+        days!.add(DayAvailability.fromJson(v));
+      });
+    }
+  }
+}
+
+class DayAvailability {
+  String? slug;
+  String? day;
+  List<String>? slots;
+
+  DayAvailability({this.slug, this.day, this.slots});
+
+  DayAvailability.fromJson(Map<String, dynamic> json) {
+    slug = json['slug'];
+    day = json['day'];
+    if (json['slots'] != null) {
+      slots = List<String>.from(json['slots']);
+    } else {
+      slots = [];
+    }
   }
 }

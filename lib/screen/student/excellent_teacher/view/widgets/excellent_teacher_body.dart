@@ -28,29 +28,23 @@ class ExcellentTeacherBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomArrow(text: LocaleKeys.distinguishedTeachers.tr(),),
-                Padding(
-                    padding: EdgeInsets.symmetric(horizontal: width * 0.07, vertical: width * 0.03),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            height: height*0.85,
-                            child: ListView.separated(
-                              controller: controllerTeacher,
-                                padding: EdgeInsetsDirectional.symmetric(vertical: height*0.024),
-                                itemBuilder: (context, index){
-                                  return   ExcellentTeacherItem(
-                                    id: cubit.dataTeacher[index].id!,
-                                    name: cubit.dataTeacher[index].name.toString(),
-                                    img:cubit.dataTeacher[index].image.toString(),
-                                    subject:cubit.dataTeacher[index].courses!.isEmpty? "": cubit.dataTeacher[index].courses![0].subject.toString(),
-                                    rate: cubit.dataTeacher[index].rate.toString(),);
-                                }, separatorBuilder: (context, index){
-                              return SizedBox(height: height*0.018);
-                            }, itemCount: cubit.dataTeacher.length),
-                          ),
-
-                        ])),
+                Expanded(
+                  child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: width * 0.07, vertical: width * 0.03),
+                      child: ListView.separated(
+                        controller: controllerTeacher,
+                          padding: EdgeInsetsDirectional.symmetric(vertical: height*0.024),
+                          itemBuilder: (context, index){
+                            return   ExcellentTeacherItem(
+                              id: cubit.dataTeacher[index].id!,
+                              name: cubit.dataTeacher[index].name.toString(),
+                              img:cubit.dataTeacher[index].image.toString(),
+                              subject:cubit.dataTeacher[index].courses!.isEmpty? "": cubit.dataTeacher[index].courses![0].subject.toString(),
+                              rate: cubit.dataTeacher[index].rate.toString(),);
+                          }, separatorBuilder: (context, index){
+                        return SizedBox(height: height*0.018);
+                      }, itemCount: cubit.dataTeacher.length)),
+                ),
               ]));
     }));
   }

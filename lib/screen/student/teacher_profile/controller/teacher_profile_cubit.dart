@@ -16,15 +16,14 @@ class TeacherProfileCubit extends Cubit<BaseStates> {
 
   static TeacherProfileCubit get(context) => BlocProvider.of(context);
 
-  ///tabs
+  /// Tabs
   int tab = 0;
-
-  void changeTabs(tabNum) {
+  void changeTabs(int tabNum) {
     tab = tabNum;
     emit(BaseStatesChangeState());
   }
 
-  ///time
+  /// Time formatting
   String formatTimeOfDay12h(TimeOfDay time) {
     final now = DateTime.now();
     final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
@@ -39,10 +38,10 @@ class TeacherProfileCubit extends Cubit<BaseStates> {
     emit(BaseStatesChangeState());
   }
 
+  /// Firebase user creation
   Future<void> createUsers({required int id, required String name, required String image}) async {
     var userCollection = await FirebaseFirestore.instance.collection("users").doc("user_id_t_$id").get();
-    if (userCollection.exists) {
-    } else {
+    if (!userCollection.exists) {
       await FirebaseFirestore.instance.collection('users').doc('user_id_t_$id').set({
         'id': 't_$id',
         'name': name,
@@ -56,57 +55,110 @@ class TeacherProfileCubit extends Cubit<BaseStates> {
 
   TeacherProfileModel? teacherProfileModel;
 
+  /// Fetch teacher profile
   Future<void> fetchTeacherProfile({required int id}) async {
     emit(BaseStatesLoadingState());
-    Map<dynamic, dynamic> response = await myDio(endPoint: "${AppConfig.teachers}/$id", dioType: DioType.get);
-    debugPrint(response.toString());
-    if (response["status"] == true) {
-      teacherProfileModel = TeacherProfileModel.fromJson(response);
-      if(teacherProfileModel!.data!.availability!.isNotEmpty) {
-        final List<String> respDays = teacherProfileModel?.data!.availability?.first.days ?? [];
-        if (respDays.isNotEmpty) {
-          availableDays = weekDays.where((element) => respDays.contains(element.key)).toList();
+
+    try {
+      Map<dynamic, dynamic> response = await myDio(
+        endPoint: "${AppConfig.teachers}/$id",
+        dioType: DioType.get,
+      );
+      debugPrint(response.toString());
+
+      if (response["status"] == true) {
+        teacherProfileModel = TeacherProfileModel.fromJson(response);
+
+        availableDays.clear();
+
+        final availabilityList = teacherProfileModel?.data?.availability;
+        if (availabilityList != null && availabilityList.isNotEmpty) {
+          availableDays.clear();
+
+          for (var availability in availabilityList) {
+            if (availability.days != null) {
+              for (var dayItem in availability.days!) {
+                final slug = dayItem.slug ?? '';
+                final dayName = dayItem.day ?? '';
+
+                if (slug.isNotEmpty) {
+                  availableDays.add(DayModel(day: dayName, key: slug));
+                }
+              }
+            }
+          }
         }
+
+
+        emit(BaseStatesSuccessState());
+      } else {
+        emit(BaseStatesErrorState(msg: response["message"] ?? "حدث خطأ"));
       }
-      emit(BaseStatesSuccessState());
-    } else {
-      emit(BaseStatesErrorState(msg: response["message"]));
+    } catch (e) {
+      debugPrint("fetchTeacherProfile error: $e");
+      emit(BaseStatesErrorState(msg: "حدث خطأ أثناء جلب بيانات المعلم"));
     }
   }
 
+
+  /// Direct reservation
   Future<void> directReserve({required int id}) async {
     emit(BaseStatesLoadingState2());
-    final List backDays = [];
-    for (var element in selectedDays) {
-      backDays.add(element.key);
-    }
+
+    // يجب إرسال list فيها Map لكل يوم
+    List<Map<String, dynamic>> slotsList = selectedDays.map((day) {
+      return {
+        "day": day.key,
+        "time_from": startTime.text,
+        "time_to": endTime.text,
+      };
+    }).toList();
+
     Map<dynamic, dynamic> response = await myDio(
-        endPoint: "${AppConfig.directReserve}$id",
-        dioType: DioType.post,
-        dioBody: {'days': backDays, 'time_from': startTime.text, 'time_to': endTime.text});
+      endPoint: "${AppConfig.directReserve}$id",
+      dioType: DioType.post,
+      dioBody: {
+        "slots": slotsList,   // ← هنا الحل الحقيقي
+      },
+    );
+
     debugPrint(response.toString());
+
     if (response["status"] == true) {
       navigatorPop();
       showToast(text: response["message"], state: ToastStates.success);
       emit(BaseStatesSuccessState());
     } else {
       showToast(text: response["message"], state: ToastStates.error);
-      emit(BaseStatesErrorState(msg: response["message"]));
+      emit(BaseStatesErrorState(msg: response["message"] ?? "Unknown error"));
     }
   }
 
-  toggleSaved({required int id, required int index}) async {
-    Map<dynamic, dynamic> response = await myDio(endPoint: AppConfig.saved, dioType: DioType.post, dioBody: {"course_id": id});
+
+
+
+  /// Toggle saved courses
+  Future<void> toggleSaved({required int id, required int index}) async {
+    Map<dynamic, dynamic> response = await myDio(
+      endPoint: AppConfig.saved,
+      dioType: DioType.post,
+      dioBody: {"course_id": id},
+    );
     debugPrint(response.toString());
+
     if (response["status"] == true) {
       showToast(text: response["message"], state: ToastStates.success);
-      teacherProfileModel!.data!.courses![index].isFavorite = !teacherProfileModel!.data!.courses![index].isFavorite!;
+      final courses = teacherProfileModel?.data?.courses;
+      if (courses != null && courses.length > index) {
+        courses[index].isFavorite = !(courses[index].isFavorite ?? false);
+      }
       emit(BaseStatesSuccessState());
     } else {
-      emit(BaseStatesErrorState(msg: response["message"]));
+      emit(BaseStatesErrorState(msg: response["message"] ?? "Unknown error"));
     }
   }
 
+  /// Days selection
   List<DayModel> availableDays = [];
   List<DayModel> selectedDays = [];
 
@@ -119,7 +171,8 @@ class TeacherProfileCubit extends Cubit<BaseStates> {
     emit(BaseStatesChangeState());
   }
 
-  List<DayModel> weekDays = [
+  /// Weekdays reference
+  final List<DayModel> weekDays = [
     DayModel(day: LocaleKeys.saturday.tr(), key: 'saturday'),
     DayModel(day: LocaleKeys.sunday.tr(), key: 'sunday'),
     DayModel(day: LocaleKeys.monday.tr(), key: 'monday'),

@@ -2,10 +2,13 @@ import 'package:alfarid/core/utils/my_navigate.dart';
 import 'package:alfarid/screen/student/teacher_profile/view/teacher_profile_screen.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../../core/local/app_cached.dart';
+import '../../../../../core/local/cache_helper.dart';
 import '../../../../../core/utils/colors.dart';
 import '../../../../../core/utils/images.dart';
 import '../../../../../core/utils/size.dart';
 import '../../../../../core/utils/styles.dart';
+import '../../../../../core/widgets/custom_alert_dialogue.dart';
 
 class ExcellentTeacherItem extends StatelessWidget {
   final String  name, img , subject, rate;
@@ -16,6 +19,9 @@ class ExcellentTeacherItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return  GestureDetector(
       onTap: (){
+        CacheHelper.getData(key: AppCached.token) == null
+            ? showDialog(context: context, builder: (context) => const CustomAlertDialog())
+            :
         navigateTo(widget:  TeacherProfileScreen(id:id));
       },
       child: Container(
@@ -39,28 +45,30 @@ class ExcellentTeacherItem extends StatelessWidget {
                   ? Image.asset(AppImages.noImage,fit: BoxFit.fill,)
                   : null,
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: width*0.02),
-                  child: Text(name,style: Styles.textStyle14.copyWith(color: AppColors.mainColor2)),
-                ),
-                SizedBox(height: width*0.02),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: width*0.02,vertical: width*0.01),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(rate,style: Styles.textStyle14.copyWith(color: AppColors.blackColor)),
-                      SizedBox(width: width*0.01,),
-                      Image.asset(AppImages.star,width: width*0.04)
-                    ],
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: width*0.02),
+                    child: Text(name,style: Styles.textStyle14.copyWith(color: AppColors.mainColor2)),
                   ),
-                ),
-              ],
+                  SizedBox(height: width*0.02),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: width*0.02,vertical: width*0.01),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(rate,style: Styles.textStyle14.copyWith(color: AppColors.blackColor)),
+                        SizedBox(width: width*0.01,),
+                        Image.asset(AppImages.star,width: width*0.04)
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const Spacer(),
             subject==""? const SizedBox.shrink():
             Container(
               padding: EdgeInsetsDirectional.all(width*0.02),

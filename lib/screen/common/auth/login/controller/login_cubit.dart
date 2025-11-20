@@ -38,19 +38,21 @@ class LoginCubit extends Cubit<BaseStates> {
     emit(BaseStatesLoadingState());
     await getFireToken();
     final formDataStudent = ({
-      "register_type" : "student",
-      "email" :kDebugMode?'kamalabozyed0@gmail.com':emailController.text,
-      "password":kDebugMode? 'Password12?!':passController.text,
-      "firebase_token" :fireToken,
-      "device_id" : await getDeviceId(),
+      "register_type": "student",
+      "email": emailController.text.trim(),
+      "password": passController.text.trim(),
+      "firebase_token": fireToken,
+      "device_id": await getDeviceId(),
     });
+
     final formDataTeacher = ({
-      "register_type" : "teacher",
-      "email" :kDebugMode?'kamal.abouzayed@gmail.com':emailController.text,
-      "password" :kDebugMode? 'password':passController.text,
-      "firebase_token" :fireToken,
-      "device_id" : await getDeviceId(),
+      "register_type": "teacher",
+      "email": emailController.text.trim(),
+      "password": passController.text.trim(),
+      "firebase_token": fireToken,
+      "device_id": await getDeviceId(),
     });
+
     debugPrint(CacheHelper.getData(key: AppCached.role)==AppCached.student? formDataStudent.toString():formDataTeacher.toString());
     Map<dynamic, dynamic> loginResponse = await myDio(
         dioBody: CacheHelper.getData(key: AppCached.role)==AppCached.student? formDataStudent:formDataTeacher,
@@ -60,18 +62,18 @@ class LoginCubit extends Cubit<BaseStates> {
     if(loginResponse['status'] ==true){
       loginModel = UserModel.fromJson(loginResponse);
       // if(loginModel!.data!.user!.isVerified==true){
-        showToast(text: loginResponse['message'], state: ToastStates.success);
-        CacheHelper.saveData(key: AppCached.token, value: loginModel!.data!.token);
-        CacheHelper.saveData(key: AppCached.id, value: loginModel!.data!.user!.id);
-        CacheHelper.saveData(key: AppCached.name, value: loginModel!.data!.user!.name);
-        CacheHelper.saveData(key: AppCached.email, value:  loginModel!.data!.user!.email);
-        CacheHelper.saveData(key: AppCached.image, value:  loginModel!.data!.user!.image);
-        CacheHelper.saveData(key: AppCached.isNotify, value:  loginModel!.data!.user!.isNotified);
-        CacheHelper.getData(key:AppCached.phoneKeyCode ) == null ?
-        CacheHelper.saveData(key: AppCached.phoneKeyCode, value: 'QA'):null;
-        // FocusScope.of(navigatorKey.currentContext!).unfocus();
-        CacheHelper.getData(key: AppCached.role)==AppCached.student? navigateAndFinish(widget:const BottomNavScreen()):navigateAndFinish(widget:const BottomNavTeacherScreen());
-        CacheHelper.saveData(key: AppCached.isApple, value:  loginModel!.data!.user!.isApple);
+      showToast(text: loginResponse['message'], state: ToastStates.success);
+      CacheHelper.saveData(key: AppCached.token, value: loginModel!.data!.token);
+      CacheHelper.saveData(key: AppCached.id, value: loginModel!.data!.user!.id);
+      CacheHelper.saveData(key: AppCached.name, value: loginModel!.data!.user!.name);
+      CacheHelper.saveData(key: AppCached.email, value:  loginModel!.data!.user!.email);
+      CacheHelper.saveData(key: AppCached.image, value:  loginModel!.data!.user!.image);
+      CacheHelper.saveData(key: AppCached.isNotify, value:  loginModel!.data!.user!.isNotified);
+      CacheHelper.getData(key:AppCached.phoneKeyCode ) == null ?
+      CacheHelper.saveData(key: AppCached.phoneKeyCode, value: 'QA'):null;
+      // FocusScope.of(navigatorKey.currentContext!).unfocus();
+      CacheHelper.getData(key: AppCached.role)==AppCached.student? navigateAndFinish(widget:const BottomNavScreen()):navigateAndFinish(widget:const BottomNavTeacherScreen());
+      CacheHelper.saveData(key: AppCached.isApple, value:  loginModel!.data!.user!.isApple);
 
       // }
       // else{

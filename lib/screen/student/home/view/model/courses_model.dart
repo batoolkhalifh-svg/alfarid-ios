@@ -1,26 +1,26 @@
 class CoursesModel {
-  Data? data;
+  CoursesData? data;
   String? message;
   bool? success;
 
   CoursesModel({this.data, this.message, this.success});
 
   CoursesModel.fromJson(Map<dynamic, dynamic> json) {
-    data = json['data'] != null ?  Data.fromJson(json['data']) : null;
+    data = json['data'] != null ?  CoursesData.fromJson(json['data']) : null;
     message = json['message'];
     success = json['success'];
   }
 
 }
 
-class Data {
+class CoursesData {
   List<Items>? items;
   Paginate? paginate;
   dynamic extra;
 
-  Data({this.items, this.paginate, this.extra});
+  CoursesData({this.items, this.paginate, this.extra});
 
-  Data.fromJson(Map<String, dynamic> json) {
+  CoursesData.fromJson(Map<String, dynamic> json) {
     if (json['items'] != null) {
       items = <Items>[];
       json['items'].forEach((v) {

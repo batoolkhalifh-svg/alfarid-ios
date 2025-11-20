@@ -5,15 +5,24 @@ class OrdersModel {
 
   OrdersModel({this.data, this.message, this.success});
 
-  OrdersModel.fromJson(Map<dynamic, dynamic> json) {
-    if (json['data'] != null) {
-      data = <Data>[];
-      json['data'].forEach((v) {
-        data!.add( Data.fromJson(v));
-      });
+  /// تحويل JSON بطريقة آمنة
+  factory OrdersModel.fromJsonSafe(Map<String, dynamic> json) {
+    List<Data> tempData = [];
+    try {
+      if (json['data'] != null && json['data']['items'] != null) {
+        for (var v in json['data']['items']) {
+          tempData.add(Data.fromJsonSafe(Map<String, dynamic>.from(v)));
+        }
+      }
+    } catch (e) {
+      // لو صار خطأ في تحويل البيانات، نترك القائمة فاضية
+      tempData = [];
     }
-    message = json['message'];
-    success = json['success'];
+    return OrdersModel(
+      data: tempData,
+      message: json['message'],
+      success: json['success'] ?? false,
+    );
   }
 }
 
@@ -21,18 +30,34 @@ class Data {
   int? id;
   Student? student;
   String? date;
+  String? paymentStatus;
+  double? price;
   String? status;
+  List<Slot>? slots;
 
-  Data({this.id, this.student, this.date, this.status});
+  Data({this.id, this.student, this.date, this.paymentStatus, this.price, this.status, this.slots});
 
-  Data.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    student =
-    json['student'] != null ? Student.fromJson(json['student']) : null;
-    date = json['date'];
-    status = json['status'];
+  factory Data.fromJsonSafe(Map<String, dynamic> json) {
+    List<Slot> tempSlots = [];
+    try {
+      if (json['slots'] != null) {
+        for (var s in json['slots']) {
+          tempSlots.add(Slot.fromJsonSafe(Map<String, dynamic>.from(s)));
+        }
+      }
+    } catch (e) {
+      tempSlots = [];
+    }
+    return Data(
+      id: json['id'],
+      student: json['student'] != null ? Student.fromJsonSafe(Map<String, dynamic>.from(json['student'])) : null,
+      date: json['date'],
+      paymentStatus: json['payment_status'],
+      price: json['price'] != null ? (json['price'] is int ? (json['price'] as int).toDouble() : json['price']) : null,
+      status: json['status'],
+      slots: tempSlots,
+    );
   }
-
 }
 
 class Student {
@@ -42,10 +67,29 @@ class Student {
 
   Student({this.name, this.image, this.classroom});
 
-  Student.fromJson(Map<String, dynamic> json) {
-    name = json['name'];
-    image = json['image'];
-    classroom = json['classroom'];
+  factory Student.fromJsonSafe(Map<String, dynamic> json) {
+    return Student(
+      name: json['name'] ?? '',
+      image: json['image'] ?? '',
+      classroom: json['classroom'] ?? '',
+    );
   }
+}
 
+class Slot {
+  int? id;
+  String? timeFrom;
+  String? timeTo;
+  String? day;
+
+  Slot({this.id, this.timeFrom, this.timeTo, this.day});
+
+  factory Slot.fromJsonSafe(Map<String, dynamic> json) {
+    return Slot(
+      id: json['id'],
+      timeFrom: json['time_from'] ?? '',
+      timeTo: json['time_to'] ?? '',
+      day: json['day'] ?? '',
+    );
+  }
 }

@@ -94,6 +94,8 @@ class CustomHomeHeader extends StatelessWidget {
                 ],
               ),
             ),
+            CacheHelper.getData(key: AppCached.token) == null?
+                SizedBox(height: 40.h):
             GestureDetector(
               onTap: () {
                 navigateTo(widget: const SearchScreen());

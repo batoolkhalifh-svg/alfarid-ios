@@ -1,5 +1,5 @@
 class AppConfig {
-  static const String baseUrl = "https://alfarid.tarmez.top/api/";
+  static const String baseUrl = "https://app.alfarid.info/api/";
   static const String onBoarding = "onboard";
   static const String register = "auth/register";
   static const String verifyCode = "auth/verify-reset-code";

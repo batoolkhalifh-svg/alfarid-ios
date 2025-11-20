@@ -2,10 +2,13 @@ import 'package:alfarid/core/utils/my_navigate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../../core/local/app_cached.dart';
+import '../../../../../../core/local/cache_helper.dart';
 import '../../../../../../core/utils/colors.dart';
 import '../../../../../../core/utils/images.dart';
 import '../../../../../../core/utils/size.dart';
 import '../../../../../../core/utils/styles.dart';
+import '../../../../../../core/widgets/custom_alert_dialogue.dart';
 import '../../../../teacher_profile/view/teacher_profile_screen.dart';
 import '../../controller/home_cubit.dart';
 import '../../controller/home_states.dart';
@@ -20,6 +23,9 @@ class ExcellentTeacherItem extends StatelessWidget {
       final cubit = HomeCubit.get(context);
       return  GestureDetector(
         onTap: (){
+          CacheHelper.getData(key: AppCached.token) == null
+              ? showDialog(context: context, builder: (context) => const CustomAlertDialog())
+              :
           navigateTo(widget:TeacherProfileScreen(id: cubit.dataTeacher[index].id!));
         },
         child: Container(

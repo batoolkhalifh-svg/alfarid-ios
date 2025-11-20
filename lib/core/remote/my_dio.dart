@@ -72,7 +72,7 @@ myDio({required String endPoint,
       }
       log('url is >>> ${AppConfig.baseUrl+endPoint}');
       log('token is >>> ${CacheHelper.getData(key: AppCached.token)}');
-      log('statusCode is  >>> ${response!.statusCode}');
+      log('statusCode is  >>> ${response!.statusCode} url ==> ${AppConfig.baseUrl+endPoint}');
       debugPrint('Response is >>> ${response.data}');
 
       if (response.statusCode! >= 200 && response.statusCode! <= 299) {

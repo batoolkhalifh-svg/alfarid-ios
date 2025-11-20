@@ -1,3 +1,5 @@
+import 'package:alfarid/core/local/app_cached.dart';
+import 'package:alfarid/core/local/cache_helper.dart';
 import 'package:alfarid/core/utils/images.dart';
 import 'package:alfarid/core/utils/size.dart';
 import 'package:alfarid/core/widgets/custom_loading.dart';
@@ -37,6 +39,7 @@ class HomeLists extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if(CacheHelper.getData(key: AppCached.token)!=null)
             const HomeOffersSection(),
             CustomRow(
               title: cubit.titles[0],

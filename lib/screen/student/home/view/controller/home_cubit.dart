@@ -7,6 +7,7 @@ import 'package:alfarid/screen/student/home/view/model/banner_model.dart';
 import 'package:alfarid/screen/student/home/view/model/offers_model.dart';
 import 'package:alfarid/screen/student/home/view/model/subject_model.dart';
 import 'package:alfarid/screen/student/home/view/model/teacher_model.dart';
+import 'package:alfarid/screen/student/search/model/search_model.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -25,13 +26,15 @@ class HomeCubit extends Cubit<HomeStates> {
   static HomeCubit get(context) => BlocProvider.of(context);
 
   int currentIndex = 0;
-
   void changeIndex(int index) {
     currentIndex = index;
     emit(HomeChangeState());
   }
 
-  List titles = [LocaleKeys.importantCourses.tr(), LocaleKeys.distinguishedTeachers.tr()];
+  List titles = [
+    LocaleKeys.importantCourses.tr(),
+    LocaleKeys.distinguishedTeachers.tr()
+  ];
   ScrollController scrollController = ScrollController();
 
   int? currentCourse = 0;
@@ -42,27 +45,37 @@ class HomeCubit extends Cubit<HomeStates> {
     subId = curSubId;
     data = [];
     dataTeacher = [];
+    currentPage = 1;
+    currentPageTeacher = 1;
     emit(HomeChangeState());
   }
 
   BannersModel? bannersModel;
-
   Future<void> fetchBanners() async {
-    Map<dynamic, dynamic> response = await myDio(endPoint: AppConfig.banners, dioType: DioType.get);
+    print("📡 Fetching banners...");
+    Map<dynamic, dynamic> response =
+    await myDio(endPoint: AppConfig.banners, dioType: DioType.get);
+    print("✅ Banners response: $response");
     if (response["status"] == true) {
       bannersModel = BannersModel.fromJson(response);
     } else {
+      print("❌ Banners error: ${response["message"]}");
       emit(ErrorHomeState(msg: response["message"]));
     }
   }
 
   late List<OffersModel> offersModel = [];
-
   Future<void> fetchOffers() async {
-    Map<dynamic, dynamic> response = await myDio(endPoint: AppConfig.offers, dioType: DioType.get);
+    print("📡 Fetching offers...");
+    Map<dynamic, dynamic> response =
+    await myDio(endPoint: AppConfig.offers, dioType: DioType.get);
+    print("✅ Offers response: $response");
     if (response["status"] == true) {
-      offersModel = List.from(response['data']['items']).map((e) => OffersModel.fromJson(e)).toList();
+      offersModel = List.from(response['data']['items'])
+          .map((e) => OffersModel.fromJson(e))
+          .toList();
     } else {
+      print("❌ Offers error: ${response["message"]}");
       emit(ErrorHomeState(msg: response["message"]));
     }
   }
@@ -76,14 +89,23 @@ class HomeCubit extends Cubit<HomeStates> {
             color: AppColors.mainColor,
           )),
     );
-    Map<dynamic, dynamic> response = await myDio(endPoint: AppConfig.subscribeOffers, dioType: DioType.post, dioBody: {'offer_id': id});
+
+    print("📡 Subscribing to offer ID: $id");
+    Map<dynamic, dynamic> response = await myDio(
+        endPoint: AppConfig.subscribeOffers,
+        dioType: DioType.post,
+        dioBody: {'offer_id': id});
+    print("✅ Subscribe Offer response: $response");
+
     navigatorPop();
     emit(SuccessHomeState());
+
     if (response["status"] == true) {
       Navigator.push(
         navigatorKey.currentState!.context,
         MaterialPageRoute(
-          builder: (context) => WebViewPaymentScreen(paymentUrl: response['data']['payment_url']),
+          builder: (context) =>
+              WebViewPaymentScreen(paymentUrl: response['data']['payment_url']),
         ),
       ).then((value) => fetchHomeReq());
     } else {
@@ -92,78 +114,140 @@ class HomeCubit extends Cubit<HomeStates> {
   }
 
   SubjectModel? subjectsModel;
-
   Future<void> fetchSubjects() async {
-    Map<dynamic, dynamic> response = await myDio(endPoint: AppConfig.subjects, dioType: DioType.get);
+    print("📡 Fetching subjects...");
+    Map<dynamic, dynamic> response =
+    await myDio(endPoint: AppConfig.subjects, dioType: DioType.get);
+    print("✅ Subjects response: $response");
     if (response["status"] == true) {
       subjectsModel = SubjectModel.fromJson(response);
     } else {
+      print("❌ Subjects error: ${response["message"]}");
       emit(ErrorHomeState(msg: response["message"]));
     }
   }
 
+  // ==================== Courses ====================
   int currentPage = 1;
   List<Items> data = [];
   CoursesModel? coursesModel;
 
   Future<void> fetchCourse({bool first = true}) async {
-    first == false ? emit(LoadingHomeState2()) : null;
+    if (!first) emit(LoadingHomeState2());
+    print("📡 Fetching courses... subId=$subId page=$currentPage");
+
     Map<dynamic, dynamic> response = await myDio(
-        endPoint: subId == null ? AppConfig.studentsCourses : "${AppConfig.studentsCourses}?subject_id=$subId&page=$currentPage",
-        dioType: DioType.get);
-    if (response["status"] == true) {
-      coursesModel = CoursesModel.fromJson(response);
-      data.addAll(coursesModel!.data!.items!);
-      first == false ? emit(SuccessHomeState()) : null;
-    } else {
-      emit(ErrorHomeState(msg: response["message"]));
+      endPoint: subId == null
+          ? AppConfig.studentsCourses
+          : "${AppConfig.studentsCourses}?subject_id=$subId&page=$currentPage",
+      dioType: DioType.get,
+    );
+
+    print("✅ Courses response: $response");
+
+    try {
+      if (response["status"] == true && response["data"] != null) {
+        coursesModel = CoursesModel.fromJson(response);
+        if (currentPage == 1) {
+          data = coursesModel?.data?.items ?? [];
+        } else {
+          data.addAll(coursesModel?.data?.items ?? []);
+        }
+      } else {
+        print("❌ Courses API returned null or error, creating empty model");
+        coursesModel = CoursesModel(data: CoursesData(items: []));
+        if (currentPage == 1) data = [];
+      }
+    } catch (e) {
+      print("❌ Error parsing courses: $e");
+      coursesModel = CoursesModel(data: CoursesData(items: []));
+      if (currentPage == 1) data = [];
     }
+
+    if (!first) emit(SuccessHomeState());
   }
 
   Future<void> nextCourses() async {
-    emit(LoadingHomeState2());
     currentPage++;
     await fetchCourse(first: false);
   }
 
-  ///Teachers
+  // ==================== Teachers ====================
   int currentPageTeacher = 1;
   List<ItemsT> dataTeacher = [];
   TeacherModel? teacherModel;
 
   Future<void> fetchTeacher({bool first = true}) async {
-    first == false ? emit(LoadingHomeState2()) : null;
+    if (!first) emit(LoadingHomeState2());
+    print("📡 Fetching teachers... subId=$subId page=$currentPageTeacher");
+
     Map<dynamic, dynamic> response = await myDio(
-        endPoint: subId == null ? AppConfig.teachers : "${AppConfig.teachers}?subject_id=$subId&page=$currentPageTeacher",
-        dioType: DioType.get);
-    if (response["status"] == true) {
-      teacherModel = TeacherModel.fromJson(response);
-      dataTeacher.addAll(teacherModel!.data!.items!);
-      first == false ? emit(SuccessHomeState()) : null;
-    } else {
-      emit(ErrorHomeState(msg: response["message"]));
+      endPoint: subId == null
+          ? AppConfig.teachers
+          : "${AppConfig.teachers}?subject_id=$subId&page=$currentPageTeacher",
+      dioType: DioType.get,
+    );
+
+    print("✅ Teachers response: $response");
+
+    try {
+      if (response["status"] == true && response["data"] != null) {
+        teacherModel = TeacherModel.fromJson(response);
+        if (currentPageTeacher == 1) {
+          dataTeacher = teacherModel?.data?.items ?? [];
+        } else {
+          dataTeacher.addAll(teacherModel?.data?.items ?? []);
+        }
+      } else {
+        print("❌ Teachers API returned null or error, skipping...");
+        if (currentPageTeacher == 1) dataTeacher = [];
+      }
+    } catch (e) {
+      print("❌ Error parsing teachers: $e");
+      if (currentPageTeacher == 1) dataTeacher = [];
     }
+
+    if (!first) emit(SuccessHomeState());
   }
 
   Future<void> nextTeachers() async {
-    emit(LoadingHomeState2());
     currentPageTeacher++;
     await fetchTeacher(first: false);
   }
 
+  // ==================== Home Request ====================
   fetchHomeReq() async {
+    print("🏠 Starting fetchHomeReq...");
     emit(LoadingHomeState());
-    await Future.wait([fetchBanners(), fetchSubjects(), fetchCourse(), fetchTeacher(), fetchOffers()]);
+    await Future.wait([
+      fetchBanners(),
+      fetchSubjects(),
+      fetchCourse(),
+      fetchTeacher(),
+      if (CacheHelper.getData(key: AppCached.token) != null) fetchOffers(),
+    ]);
+    print("🏁 Finished fetchHomeReq.");
+
+    state is ErrorHomeState
+        ? print("❌ One of the requests failed.")
+        : print("✅ Home data loaded successfully!");
+
     state is ErrorHomeState ? null : emit(SuccessHomeState());
   }
 
+  // ==================== Toggle Saved ====================
   toggleSaved({required int id, required int index}) async {
-    Map<dynamic, dynamic> response = await myDio(endPoint: AppConfig.saved, dioType: DioType.post, dioBody: {"course_id": id});
+    print("🔖 Toggling saved course ID=$id");
+    Map<dynamic, dynamic> response = await myDio(
+        endPoint: AppConfig.saved, dioType: DioType.post, dioBody: {"course_id": id});
+    print("✅ Toggle saved response: $response");
+
     if (response["status"] == true) {
       showToast(text: response["message"], state: ToastStates.success);
-      data[index].isFavourite = !data[index].isFavourite!;
+      data[index].isFavourite = !(data[index].isFavourite ?? false);
       emit(SuccessHomeState());
     } else {
+      print("❌ Toggle saved error: ${response["message"]}");
       emit(ErrorHomeState(msg: response["message"]));
     }
   }

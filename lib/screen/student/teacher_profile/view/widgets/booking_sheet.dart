@@ -19,6 +19,11 @@ class BookingSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<TeacherProfileCubit, BaseStates>(builder: (context, state) {
       final cubit = context.read<TeacherProfileCubit>();
+      final availability = cubit.teacherProfileModel?.data?.availability;
+      final firstDay = (availability != null && availability.isNotEmpty)
+          ? availability.first.days?.first
+          : null;
+      final slots = firstDay?.slots ?? [];
       return SingleChildScrollView(
         padding: EdgeInsets.all(16.w),
         child: Column(
@@ -34,16 +39,16 @@ class BookingSheet extends StatelessWidget {
                 cubit.availableDays.length,
                 (index) => InkWell(
                   splashColor: Colors.transparent,
-                  onTap: () => cubit.addDay(v: cubit.weekDays[index]),
+                  onTap: () => cubit.addDay(v: cubit.availableDays[index]),
                   child: Container(
                     padding: EdgeInsets.all(7.w),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(13.r),
-                        border: Border.all(color: cubit.selectedDays.contains(cubit.weekDays[index]) ? AppColors.mainColor : Colors.grey)),
+                        border: Border.all(color: cubit.selectedDays.contains(cubit.availableDays[index]) ? AppColors.mainColor : Colors.grey)),
                     child: Text(
                       cubit.availableDays[index].day,
                       style: TextStyle(
-                          fontSize: 16.sp, color: cubit.selectedDays.contains(cubit.weekDays[index]) ? AppColors.mainColor : Colors.black),
+                          fontSize: 16.sp, color: cubit.selectedDays.contains(cubit.availableDays[index]) ? AppColors.mainColor : Colors.black),
                     ),
                   ),
                 ),
@@ -52,8 +57,8 @@ class BookingSheet extends StatelessWidget {
             Text(LocaleKeys.availableTimes.tr(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp)),
             Row(
               children: [
-                Expanded(child: Text('${LocaleKeys.from.tr()}: ${cubit.teacherProfileModel?.data?.availability?.first.timeFrom}')),
-                Expanded(child: Text('${LocaleKeys.to.tr()}: ${cubit.teacherProfileModel?.data?.availability?.first.timeTo}')),
+                Expanded(child: Text('${LocaleKeys.from.tr()}: ${slots.isNotEmpty ? slots.first : '-'}')),
+                Expanded(child: Text('${LocaleKeys.to.tr()}: ${slots.isNotEmpty ? slots.last : '-'}')),
               ],
             ),
             Row(

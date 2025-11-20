@@ -25,9 +25,9 @@ class OrderDetailsCubit extends Cubit<BaseStates> {
     debugPrint(response.toString());
     if(response["status"]==true){
       orderDetailsModel = OrdersDetailsModel.fromJson(response);
-      final List<String> responsDays=orderDetailsModel!.data!.days??[];
-      // availableDays = weekDays.where((element) => respDays.contains(element.key)).toList();
-      daysList=weekDays.where((element) => responsDays.contains(element.key)).toList();
+      final List<String> responsDays = orderDetailsModel!.data!.slots.map((slot) => slot.day!).toList();
+      daysList = weekDays.where((element) => responsDays.contains(element.key)).toList();
+
       emit(BaseStatesSuccessState());
     }else{
       emit(BaseStatesErrorState(msg: response["message"]));

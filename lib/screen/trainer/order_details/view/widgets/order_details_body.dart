@@ -75,8 +75,9 @@ class OrderDetailsBody extends StatelessWidget {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                     children: [
-                                      Text('${LocaleKeys.from.tr()}  ${cubit.orderDetailsModel!.data!.timeFrom}'),
-                                      Text('${LocaleKeys.to.tr()}  ${cubit.orderDetailsModel!.data!.timeTo}'),
+                                      Text('${LocaleKeys.from.tr()}  ${cubit.orderDetailsModel!.data!.firstTimeFrom ?? '-'}'),
+                                      Text('${LocaleKeys.to.tr()}  ${cubit.orderDetailsModel!.data!.firstTimeTo ?? '-'}'),
+
                                     ],
                                   ),
                                 ),
@@ -86,34 +87,17 @@ class OrderDetailsBody extends StatelessWidget {
                                 SizedBox(
                                   height: width * 0.04,
                                 ),
-                                cubit.orderDetailsModel!.data!.status == "pending"
-                                    ? state is BaseStatesLoadingState2
-                                        ? const Center(child: CustomLoading())
-                                        : Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              CustomBlueButton(
-                                                text: LocaleKeys.accept.tr(),
-                                                onTap: () {
-                                                  cubit.changStatus(id: cubit.orderDetailsModel!.data!.id!, status: "accepted");
-                                                },
-                                              ),
-                                              SizedBox(width: width * 0.05),
-                                              CustomBlueButton(
-                                                text: LocaleKeys.reject.tr(),
-                                                onTap: () {
-                                                  cubit.changStatus(id: cubit.orderDetailsModel!.data!.id!, status: "rejected");
-                                                },
-                                                isRed: true,
-                                              ),
-                                            ],
-                                          )
-                                    : CustomBlueButton(
-                                        text: cubit.orderDetailsModel!.data!.status == "accepted"
-                                            ? LocaleKeys.acceptedOrder.tr()
-                                            : LocaleKeys.rejectedOrder.tr(),
-                                        onTap: () {},
-                                        isRed: cubit.orderDetailsModel!.data!.status == "rejected" ? true : false),
+                                // عرض حالة الطلب حسب الدفع فقط
+                                Text(
+                                  cubit.orderDetailsModel!.data!.paymentStatus == "paid"
+                                      ? "مقبول"
+                                      : "قيد الانتظار",
+                                  style: Styles.textStyle14.copyWith(
+                                      color: cubit.orderDetailsModel!.data!.paymentStatus == "paid"
+                                          ? AppColors.mainColor2
+                                          : AppColors.mainColor),
+                                )
+
                               ]),
                             )),
               ],
