@@ -60,5 +60,6 @@ class AppConfig {
   static const String delAccount = "auth/delete-account";
   static const String lieutenantExam = "student/study-notes/exam/";
   static const String submitExamLieutenant = "student/study-notes/exam/submit/";
+  static const String coursePrice = "/course_price";
 
 }

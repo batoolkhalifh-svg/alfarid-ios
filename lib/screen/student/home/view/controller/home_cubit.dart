@@ -150,6 +150,7 @@ class HomeCubit extends Cubit<HomeStates> {
         coursesModel = CoursesModel.fromJson(response);
         if (currentPage == 1) {
           data = coursesModel?.data?.items ?? [];
+          
         } else {
           data.addAll(coursesModel?.data?.items ?? []);
         }

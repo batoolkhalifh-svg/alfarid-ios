@@ -6,11 +6,10 @@ class AllLieutenantModel {
   AllLieutenantModel({this.data, this.message, this.success});
 
   AllLieutenantModel.fromJson(Map<dynamic, dynamic> json) {
-    data = json['data'] != null ? Data.fromJson(json['data']) : null;
+    data = json['data'] != null ? Data.fromJson(json['data']) : Data(items: []);
     message = json['message'];
     success = json['success'];
   }
-
 }
 
 class Data {
@@ -26,13 +25,12 @@ class Data {
       json['items'].forEach((v) {
         items!.add(Items.fromJson(v));
       });
+    } else {
+      items = [];
     }
-    paginate = json['paginate'] != null
-        ? Paginate.fromJson(json['paginate'])
-        : null;
-    extra = json['extra'];
+    paginate = json['paginate'] != null ? Paginate.fromJson(json['paginate']) : null;
+    extra = json['extra']?.toString() ?? '';
   }
-
 }
 
 class Items {
@@ -45,31 +43,18 @@ class Items {
   Classroom? classroom;
   Classroom? subject;
 
-  Items(
-      {this.id,
-        this.name,
-        this.unitName,
-        this.file,
-        this.image,
-        this.price,
-        this.classroom,
-        this.subject});
+  Items({this.id, this.name, this.unitName, this.file, this.image, this.price, this.classroom, this.subject});
 
   Items.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-    unitName = json['unit_name'];
-    file = json['file'];
-    image = json['image'];
-    price = json['price'];
-    classroom = json['classroom'] != null
-        ? Classroom.fromJson(json['classroom'])
-        : null;
-    subject = json['subject'] != null
-        ? Classroom.fromJson(json['subject'])
-        : null;
+    id = json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '0');
+    name = json['name']?.toString() ?? '';
+    unitName = json['unit_name']?.toString() ?? '';
+    file = json['file']?.toString() ?? '';
+    image = json['image']?.toString() ?? '';
+    price = json['price'] is int ? json['price'] : int.tryParse(json['price']?.toString() ?? '0');
+    classroom = json['classroom'] != null ? Classroom.fromJson(json['classroom']) : Classroom(name: '');
+    subject = json['subject'] != null ? Classroom.fromJson(json['subject']) : Classroom(name: '');
   }
-
 }
 
 class Classroom {
@@ -79,10 +64,9 @@ class Classroom {
   Classroom({this.id, this.name});
 
   Classroom.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
+    id = json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '0');
+    name = json['name']?.toString() ?? '';
   }
-
 }
 
 class Paginate {
@@ -94,22 +78,15 @@ class Paginate {
   int? currentPage;
   int? totalPages;
 
-  Paginate(
-      {this.total,
-        this.count,
-        this.perPage,
-        this.nextPageUrl,
-        this.prevPageUrl,
-        this.currentPage,
-        this.totalPages});
+  Paginate({this.total, this.count, this.perPage, this.nextPageUrl, this.prevPageUrl, this.currentPage, this.totalPages});
 
   Paginate.fromJson(Map<String, dynamic> json) {
-    total = json['total'];
-    count = json['count'];
-    perPage = json['per_page'];
-    nextPageUrl = json['next_page_url'];
-    prevPageUrl = json['prev_page_url'];
-    currentPage = json['current_page'];
-    totalPages = json['total_pages'];
+    total = json['total'] is int ? json['total'] : int.tryParse(json['total']?.toString() ?? '0');
+    count = json['count'] is int ? json['count'] : int.tryParse(json['count']?.toString() ?? '0');
+    perPage = json['per_page'] is int ? json['per_page'] : int.tryParse(json['per_page']?.toString() ?? '0');
+    nextPageUrl = json['next_page_url']?.toString() ?? '';
+    prevPageUrl = json['prev_page_url']?.toString() ?? '';
+    currentPage = json['current_page'] is int ? json['current_page'] : int.tryParse(json['current_page']?.toString() ?? '0');
+    totalPages = json['total_pages'] is int ? json['total_pages'] : int.tryParse(json['total_pages']?.toString() ?? '0');
   }
 }

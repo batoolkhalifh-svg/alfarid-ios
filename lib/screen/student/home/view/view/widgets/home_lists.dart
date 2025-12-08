@@ -1,118 +1,155 @@
-import 'package:alfarid/core/local/app_cached.dart';
-import 'package:alfarid/core/local/cache_helper.dart';
-import 'package:alfarid/core/utils/images.dart';
-import 'package:alfarid/core/utils/size.dart';
-import 'package:alfarid/core/widgets/custom_loading.dart';
-import 'package:alfarid/screen/student/home/view/view/widgets/home_offers_sections.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../excellent_teacher/view/excellent_teacher_screen.dart';
-import '../../../../important_courses/view/important_course_screen.dart';
-import '../../controller/home_cubit.dart';
-import '../../controller/home_states.dart';
-import 'custom_row.dart';
-import 'custom_title_course_list.dart';
-import 'excellent_teacher_item.dart';
-import 'important_list_item.dart';
+import '../../../../livestream/student_live.dart';
+import '../../../../livestream/student_livestream_detail_page.dart';
+import 'classrooms_screen.dart';
 
 class HomeLists extends StatelessWidget {
-  HomeLists({super.key});
-
-  final ScrollController controller = ScrollController();
-  final ScrollController controllerTeacher = ScrollController();
+  final int studentId;
+  HomeLists({super.key,required this.studentId});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeCubit, HomeStates>(builder: (context, state) {
-      final cubit = HomeCubit.get(context);
-      controller.addListener(() {
-        if (controller.position.maxScrollExtent == controller.offset) {
-          cubit.currentPage == cubit.coursesModel!.data!.paginate!.totalPages ? null : cubit.nextCourses();
-        }
-      });
-      controllerTeacher.addListener(() {
-        if (controllerTeacher.position.maxScrollExtent == controllerTeacher.offset) {
-          cubit.currentPageTeacher == cubit.teacherModel!.data!.paginate!.totalPages ? null : cubit.nextTeachers();
-        }
-      });
-      return SliverToBoxAdapter(
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if(CacheHelper.getData(key: AppCached.token)!=null)
-            const HomeOffersSection(),
-            CustomRow(
-              title: cubit.titles[0],
+
+            // رياض الأطفال → preparatory
+            _buildStageCard(
+              context,
+              title: "رياض الأطفال",
+              icon: Icons.child_friendly,
               onTap: () {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (ctx) => BlocProvider.value(value: context.read<HomeCubit>(), child: const ImportantCoursesScreen())));
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ClassroomsScreen(
+                      types: ["preparatory"],
+                      title: "رياض الأطفال",
+                    ),
+                  ),
+                );
               },
-            ),
-            const CustomTitleCourseList(),
-            SizedBox(
-              height: height * .27,
-              child: state is LoadingHomeState2
-                  ? const Center(child: CustomLoading())
-                  : cubit.coursesModel!.data!.items!.isEmpty
-                      ? Image.asset(AppImages.emptyCourses, width: width * 0.4)
-                      : ListView.separated(
-                          controller: controller,
-                          padding: EdgeInsets.symmetric(horizontal: width * 0.04),
-                          itemCount: cubit.data.length,
-                          scrollDirection: Axis.horizontal,
-                          itemBuilder: (context, index) {
-                            return ImportantListItem(
-                              index: index,
-                            );
-                          },
-                          separatorBuilder: (BuildContext context, int index) {
-                            return SizedBox(
-                              width: width * 0.02,
-                            );
-                          },
-                        ),
             ),
 
-            CustomRow(
-              title: cubit.titles[1],
+            const SizedBox(height: 16),
+
+            // المدارس الحكومية → primary + secondary
+            _buildStageCard(
+              context,
+              title: "المدارس الحكومية",
+              icon: Icons.school,
               onTap: () {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (ctx) => BlocProvider.value(value: context.read<HomeCubit>(), child: const ExcellentTeacherScreen())));
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ClassroomsScreen(
+                      types: ["primary", "secondary"],
+                      title: "المدارس الحكومية",
+                    ),
+                  ),
+                );
               },
             ),
-            SizedBox(
-              height: height * .25,
-              child: state is LoadingHomeState2
-                  ? const Center(child: CustomLoading())
-                  : cubit.teacherModel!.data!.items!.isEmpty
-                      ? Image.asset(AppImages.emptyCourses, width: width * 0.4)
-                      : ListView.separated(
-                          controller: controllerTeacher,
-                          padding: EdgeInsets.symmetric(horizontal: width * 0.04, vertical: width * 0.02),
-                          itemCount: cubit.dataTeacher.length,
-                          scrollDirection: Axis.horizontal,
-                          itemBuilder: (context, index) {
-                            return ExcellentTeacherItem(
-                              index: index,
-                            );
-                          },
-                          separatorBuilder: (BuildContext context, int index) {
-                            return SizedBox(
-                              width: width * 0.02,
-                            );
-                          },
-                        ),
+
+            const SizedBox(height: 16),
+
+            // المدارس الخاصة → private
+            _buildStageCard(
+              context,
+              title: "المدارس الخاصة",
+              icon: Icons.apartment,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ClassroomsScreen(
+                      types: ["private"],
+                      title: "المدارس الخاصة",
+                    ),
+                  ),
+                );
+              },
             ),
-            SizedBox(
-              height: height * 0.020,
+
+            const SizedBox(height: 16),
+
+            // الجامعات → university
+            _buildStageCard(
+              context,
+              title: "التعليم الجامعي",
+              icon: Icons.account_balance,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ClassroomsScreen(
+                      types: ["uni"],
+                      title: "التعليم الجامعي",
+                    ),
+                  ),
+                );
+              },
             ),
+// بعد بطاقة الجامعات، أضف SizedBox ثم بطاقة البث المباشر
+            const SizedBox(height: 16),
+
+        _buildStageCard(
+          context,
+          title: "تفاصيل البث المباشر",
+          icon: Icons.live_tv,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => StudentLive(),
+              ),
+            );
+          },
+        ),
+
+
           ],
         ),
-      );
-    });
+      ),
+    );
+  }
+
+  Widget _buildStageCard(
+      BuildContext context,
+      {required String title,
+        required IconData icon,
+        required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            )
+          ],
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 34, color: Colors.blueAccent),
+            const SizedBox(width: 16),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }

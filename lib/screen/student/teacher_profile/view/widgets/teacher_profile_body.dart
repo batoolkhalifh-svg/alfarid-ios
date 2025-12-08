@@ -26,8 +26,8 @@ import 'custom_row_teacher.dart';
 
 class TeacherProfileBody extends StatelessWidget {
   final int id;
-
-  const TeacherProfileBody({super.key, required this.id});
+  final String? classroomType;
+  const TeacherProfileBody({super.key, required this.id,this.classroomType});
 
   @override
   Widget build(BuildContext context) {
@@ -75,23 +75,7 @@ class TeacherProfileBody extends StatelessWidget {
                                     style: Styles.textStyle12.copyWith(color: AppColors.mainColor),
                                   ),
                                   SizedBox(height: width * 0.06),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      CustomRowTeacher(
-                                        number: cubit.teacherProfileModel!.data!.rateCount.toString(),
-                                        text: LocaleKeys.reviewNumbers.tr(),
-                                      ),
-                                      CustomRowTeacher(
-                                        number: cubit.teacherProfileModel!.data!.studentsCount.toString(),
-                                        text: LocaleKeys.studentNumbers.tr(),
-                                      ),
-                                      CustomRowTeacher(
-                                        number: cubit.teacherProfileModel!.data!.coursesCount.toString(),
-                                        text: LocaleKeys.coursesNumbers.tr(),
-                                      )
-                                    ],
-                                  ),
+
                                   Padding(
                                     padding: EdgeInsets.symmetric(vertical: height * 0.02),
                                     child: Row(
@@ -105,12 +89,13 @@ class TeacherProfileBody extends StatelessWidget {
                                                     isDirectBooking: true,
                                                     onTap: () {
                                                       if(cubit.teacherProfileModel!.data!.availability!.isNotEmpty)
-                                                      showModalBottomSheet(
-                                                        isScrollControlled: true,
-                                                        context: context, builder: (_) => BlocProvider.value(
-                                                        value: context.read<TeacherProfileCubit>(),
-                                                        child: const BookingSheet(),
-                                                      ),);
+                                                        showModalBottomSheet(
+                                                          isScrollControlled: true,
+                                                          context: context,
+                                                          builder: (_) => BlocProvider.value(
+                                                            value: context.read<TeacherProfileCubit>(),
+                                                            child: BookingSheet(classroomType: classroomType), // ← مرّر النوع هنا
+                                                          ),);
                                                       // CacheHelper.getData(key: AppCached.token) == null
                                                       //     ? showDialog(context: context, builder: (context) => const CustomAlertDialog())
                                                       //     : cubit.directReserve(id: id);
@@ -123,10 +108,7 @@ class TeacherProfileBody extends StatelessWidget {
                                                   showDialog(context: context, builder: (context) => const CustomAlertDialog());
                                                 }
                                               : () {
-                                                  cubit.createUsers(
-                                                      id: cubit.teacherProfileModel!.data!.id!,
-                                                      name: cubit.teacherProfileModel!.data!.name.toString(),
-                                                      image: cubit.teacherProfileModel!.data!.image.toString());
+
                                                   navigateTo(
                                                       widget: ChatDetailsScreen(
                                                     id: 't_${cubit.teacherProfileModel!.data!.id!}',
@@ -206,10 +188,7 @@ class TeacherProfileBody extends StatelessWidget {
                                                           widget: CourseDetailsScreen(
                                                               id: cubit.teacherProfileModel!.data!.courses![index].id!));
                                                     },
-                                                    onTapSave: () {
-                                                      cubit.toggleSaved(
-                                                          id: cubit.teacherProfileModel!.data!.courses![index].id!, index: index);
-                                                    },
+
                                                   )),
                                         ),
                                       ),

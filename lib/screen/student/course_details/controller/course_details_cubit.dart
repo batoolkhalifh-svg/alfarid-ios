@@ -31,16 +31,38 @@ class CourseDetailsCubit extends Cubit<CourseDetailsStates> {
 
   Future<void> getCourseDetails({required int id}) async {
     emit(CourseDetailsLoadingState());
-    print('fghjm,.');
-    Map<dynamic, dynamic> response = await myDio(endPoint: '${AppConfig.courseDetails}$id', dioType: DioType.get);
-    debugPrint(response.toString());
-    if (response["status"] == true) {
-      courseDetailsModel = CourseDetailsModel.fromJson(response);
-      emit(CourseDetailsSuccessState());
-    } else {
-      emit(CourseDetailsErrorState(msg: response["message"]));
+    print('Fetching course details for id: $id');
+
+    try {
+      Map<dynamic, dynamic> response = await myDio(
+        endPoint: '${AppConfig.courseDetails}$id',
+        dioType: DioType.get,
+      );
+
+      debugPrint('Response: $response');
+
+      // التحقق من أن الاستجابة صحيحة
+      if (response.isNotEmpty && response["status"] == true && response["data"] != null) {
+        courseDetailsModel = CourseDetailsModel.fromJson(response);
+        emit(CourseDetailsSuccessState());
+      } else if (response["status"] == false) {
+        // إذا كان السيرفر رجع خطأ معروف
+        String msg = response["message"] ?? "خطأ غير معروف من السيرفر";
+        emit(CourseDetailsErrorState(msg: msg));
+        showToast(text: msg, state: ToastStates.error);
+      } else {
+        // حالة البيانات فارغة أو غير متوقعة
+        emit(CourseDetailsErrorState(msg: "لا توجد بيانات لهذا الكورس."));
+        showToast(text: "لا توجد بيانات لهذا الكورس.", state: ToastStates.error);
+      }
+    } catch (e) {
+      // التقاط أي استثناء آخر (Network, Parsing, etc.)
+      debugPrint('Exception in getCourseDetails: $e');
+      emit(CourseDetailsErrorState(msg: "فشل في تحميل بيانات الكورس. حاول مرة أخرى."));
+      showToast(text: "فشل في تحميل بيانات الكورس. حاول مرة أخرى.", state: ToastStates.error);
     }
   }
+
 
   int currentSection = 0;
   int currentLesson = 0;
