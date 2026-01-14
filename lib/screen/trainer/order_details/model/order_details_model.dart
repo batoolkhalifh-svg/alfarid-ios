@@ -20,6 +20,7 @@ class Data {
   String? paymentStatus;
   int? price;
   String? status;
+  Map<String, List<String>> uploadedFiles = {}; // تم تهيئتها فارغة بدل nullable
 
   Data({
     this.id,
@@ -29,6 +30,7 @@ class Data {
     this.paymentStatus,
     this.price,
     this.status,
+    this.uploadedFiles = const {},
   });
 
   Data.fromJson(Map<String, dynamic> json) {
@@ -43,6 +45,12 @@ class Data {
     paymentStatus = json['payment_status'];
     price = json['price'];
     status = json['status'];
+
+    // 🔹 تحويل uploaded_files بشكل آمن
+    uploadedFiles = json['uploaded_files'] != null
+        ? (json['uploaded_files'] as Map<String, dynamic>)
+        .map((key, value) => MapEntry(key, List<String>.from(value)))
+        : {};
   }
 
   // Getter للوصول السهل لأول slot

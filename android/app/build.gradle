@@ -1,7 +1,6 @@
 plugins {
     id "com.android.application"
     id "kotlin-android"
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id 'dev.flutter.flutter-gradle-plugin'
     id 'com.google.gms.google-services'
     id 'kotlin-parcelize'
@@ -32,17 +31,19 @@ android {
         pickFirst 'lib/x86/libc++_shared.so'
         pickFirst 'lib/x86_64/libc++_shared.so'
         pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+        pickFirst 'lib/armeabi/libc++_shared.so' // أضفنا هذا للسلاسة مع الأجهزة القديمة
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.teacher.alfarid.app"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 24
+        minSdk = 24 // أو خففيه لـ 21 لو بدك دعم أوسع
         targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        versionCode 9  // رقم الإصدار الجديد
+        versionName "1.2.0" // اسم الإصدار الجديد
+        ndk {
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        }
+
     }
 
     signingConfigs {
@@ -56,11 +57,9 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.release
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false // مؤقتًا لتعطيل Proguard
+            shrinkResources false // مؤقتًا لتعطيل تقليص الموارد
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -72,5 +71,4 @@ flutter {
 
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
-//    implementation 'com.android.support:multidex:1.0.3'
 }

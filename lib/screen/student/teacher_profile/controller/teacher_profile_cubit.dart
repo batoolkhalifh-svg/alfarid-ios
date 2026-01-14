@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:alfarid/core/utils/my_navigate.dart';
 import 'package:alfarid/core/widgets/custom_toast.dart';
 import 'package:alfarid/screen/trainer/timetable/controller/timetable_cubit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -147,58 +150,78 @@ class TeacherProfileCubit extends Cubit<BaseStates> {
   }
 
   /// Direct reservation
-  Future<void> directReserve({required int id}) async {
+  Future<void> directReserve({required int id, required Map<String, List<File>> filesPerDay}) async {
     emit(BaseStatesLoadingState2());
 
-    if (selectedDays.isEmpty) {
-      showToast(text: "يرجى اختيار يوم واحد على الأقل", state: ToastStates.error);
-      emit(BaseStatesErrorState(msg: "لم يتم اختيار أيام"));
+    // التحقق من الحقول الأساسية
+    if (selectedDays.isEmpty || startTime.text.isEmpty || endTime.text.isEmpty || classroomType == null) {
+      showToast(text: "يرجى التحقق من جميع الحقول", state: ToastStates.error);
+      emit(BaseStatesErrorState(msg: "الحقول ناقصة"));
       return;
     }
 
-    if (startTime.text.isEmpty || endTime.text.isEmpty) {
-      showToast(text: "يرجى تحديد وقت البداية والنهاية", state: ToastStates.error);
-      emit(BaseStatesErrorState(msg: "لم يتم تحديد الوقت"));
-      return;
-    }
-
-    if (classroomType == null) {
-      showToast(text: "نوع الصف غير محدد", state: ToastStates.error);
-      emit(BaseStatesErrorState(msg: "classroomType is null"));
-      return;
-    }
-
-    // إعداد الـ slots مع class_type لكل يوم
+    // تجهيز الـ slots
     List<Map<String, dynamic>> slots = selectedDays.map((day) {
       return {
-        "day": day.key.toLowerCase().trim(),     // lowercase وإزالة الفراغات
-        "time_from": startTime.text.trim(),      // إزالة أي فراغات زائدة
-        "time_to": endTime.text.trim(),          // إزالة أي فراغات زائدة
-        "class_type": classroomType!.trim(),     // إزالة أي فراغات، مع التأكد أنه ليس null
+        "day": day.key.toLowerCase().trim(),
+        "time_from": startTime.text.trim(),
+        "time_to": endTime.text.trim(),
+        "class_type": classroomType!.trim(),
       };
     }).toList();
 
+    // إنشاء FormData فارغ
+    FormData formData = FormData();
 
-    // إرسال الطلب للسيرفر
-    Map response = await myDio(
-      endPoint: "${AppConfig.directReserve}$id",
-      dioType: DioType.post,
-      dioBody: {
-        "slots": slots, // مجرد Map, Dio سيحوّلها تلقائياً إلى form-data
-      },
-    );
-    for (var slot in slots) {
-      print("Slot debug: $slot");
+    // إضافة كل slot مع الملفات بشكل متوافق مع Laravel
+    for (int i = 0; i < slots.length; i++) {
+      var slot = slots[i];
+
+      // إضافة الحقول العادية
+      formData.fields.add(MapEntry('slots[$i][day]', slot['day']));
+      formData.fields.add(MapEntry('slots[$i][time_from]', slot['time_from']));
+      formData.fields.add(MapEntry('slots[$i][time_to]', slot['time_to']));
+      formData.fields.add(MapEntry('slots[$i][class_type]', slot['class_type']));
+
+      // إضافة الملفات لكل slot إذا موجودة
+      var files = filesPerDay[slot['day']] ?? [];
+      for (int j = 0; j < files.length; j++) {
+        formData.files.add(
+          MapEntry(
+            'slots[$i][uploaded_files][]',
+            await MultipartFile.fromFile(files[j].path, filename: files[j].path.split('/').last),
+          ),
+        );
+      }
     }
-    if (response["status"] == true) {
-      navigatorPop();
-      showToast(text: response["message"], state: ToastStates.success);
-      emit(BaseStatesSuccessState());
-    } else {
-      showToast(text: response["message"], state: ToastStates.error);
-      emit(BaseStatesErrorState(msg: response["message"]));
+
+    try {
+      Map response = await myDio(
+        endPoint: "${AppConfig.directReserve}$id",
+        dioType: DioType.post,
+        dioBody: formData,
+      );
+
+      if (response["status"] == true) {
+        navigatorPop();
+        showToast(text: response["message"], state: ToastStates.success);
+        emit(BaseStatesSuccessState());
+      } else {
+        showToast(text: response["message"], state: ToastStates.error);
+        emit(BaseStatesErrorState(msg: response["message"]));
+      }
+    } catch (e) {
+      showToast(text: "حدث خطأ أثناء إرسال الحجز", state: ToastStates.error);
+      emit(BaseStatesErrorState(msg: e.toString()));
     }
   }
+
+
+
+
+
+
+
 
 
 }
