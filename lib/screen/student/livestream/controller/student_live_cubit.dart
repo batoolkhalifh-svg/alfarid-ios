@@ -6,7 +6,10 @@ import 'package:jitsi_meet_flutter_sdk/jitsi_meet_flutter_sdk.dart';
 import '../../../../../core/local/app_cached.dart';
 import '../../../../../core/local/cache_helper.dart';
 import '../../../../../core/widgets/custom_toast.dart';
+import '../../../trainer/start_vr/view/vr_viewer_screen.dart';
 import '../model/live_model.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 // ================= States =================
 
@@ -54,7 +57,12 @@ class StudentLiveCubit extends Cubit<StudentLiveStates> {
         final data = json.decode(response.body);
         List<dynamic> items = data['data']['items'];
         lives = items.map((e) => LiveModel.fromJson(e)).toList();
+        lives.sort((a, b) {
+          DateTime dateA = DateTime.parse("${a.date} ${a.time}");
+          DateTime dateB = DateTime.parse("${b.date} ${b.time}");
 
+          return dateB.compareTo(dateA);
+        });
         if (lives.isEmpty) {
           emit(GetStudentLivesError('لا يوجد بث مباشر الآن'));
         } else {
@@ -125,82 +133,147 @@ class StudentLiveCubit extends Cubit<StudentLiveStates> {
     }
 
     // استخدم live.url كـ roomText
-    if (live.url != null && live.url!.isNotEmpty) {
-      joinMeeting(roomText: live.url!, context: context);
+    if (live.type == "vr") {
+
+      if (live.vrModel != null &&
+          live.vrModel!.isNotEmpty &&
+          live.url != null &&
+          live.url!.isNotEmpty) {
+
+        final vrUrl =
+            "https://alfarid.info/vr/${live.vrModel}.html"
+            "?room=${Uri.encodeComponent(live.url!)}";
+
+        debugPrint("VR URL: $vrUrl");
+
+        /*Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VrViewerScreen(
+              url: vrUrl,
+            ),
+          ),
+        );*/
+        final uri = Uri.parse(vrUrl);
+
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(
+            uri,
+            mode: LaunchMode.externalApplication,
+          );
+        }
+
+      } else {
+
+        showToast(
+          text: "رابط الحصة أو المختبر غير موجود",
+          state: ToastStates.error,
+        );
+
+      }
+
     } else {
-      showToast(text: "لا يوجد رابط للبث", state: ToastStates.error);
+
+      if (live.url != null && live.url!.isNotEmpty) {
+
+        joinMeeting(
+          roomText: live.url!,
+          context: context,
+        );
+
+      } else {
+
+        showToast(
+          text: "لا يوجد رابط للبث",
+          state: ToastStates.error,
+        );
+
+      }
+
     }
   }
 
 
   /// ============= فتح البث بواسطة Jitsi =============
-  void joinMeeting({required String roomText, required BuildContext context}) async {
-    Map<String, bool> featureFlags = {
-      'isWelcomePageEnabled': false,
-      'isAddPeopleEnabled': false,
-      'isCalendarEnabled': false,
-      'isCallIntegrationEnabled': false,
-      'isChatEnabled': true,
-      'isOverflowMenuEnabled': true,
-      'areSecurityOptionsEnabled': false,
-      'isAndroidScreensharingEnabled': false,
-      'isAudioMuteButtonEnabled': true,
-      'isAudioOnlyButtonEnabled': true,
-      'isVideoMuteButtonEnabled': true,
-      'isFilmstripEnabled': true,
-      'isPipEnabled': false,
-      'isReactionsEnabled': false,
-      'isHelpButtonEnabled': false,
-      'isReplaceParticipantEnabled': true,
-      'isInviteEnabled': true,
-      'isLiveStreamingEnabled': false,
-      'isMeetingNameEnabled': false,
-      'isMeetingPasswordEnabled': false,
-      'isToolboxAlwaysVisible': true,
-      'isCloseCaptionsEnabled': false,
-      'isRecordingEnabled': true,
-      'isIosRecordingEnabled': false,
-      'isRaiseHandEnabled': false,
-      'isTileViewEnabled': true,
-      'isVideoShareButtonEnabled': false,
-      'isToolboxEnabled': true,
-      'isConferenceTimerEnabled': true,
-      'isServerUrlChangeEnabled': false,
-      'isIosScreensharingEnabled': false,
-      'isKickoutEnabled': true,
-      'isAudioFocusDisabled': false,
-      'isFullscreenEnabled': true,
-      'isLobbyModeEnabled': false,
-      'isNotificationsEnabled': true,
-    };
+  void joinMeeting({
+    required String roomText,
+    required BuildContext context,
+  }) async {
 
-    var options = JitsiMeetConferenceOptions(
+    String roomName = roomText.trim();
+
+    // إذا كان المخزن في قاعدة البيانات رابط كامل
+    // https://meet.jit.si/Enff0iM8upEOP0FGxmkf
+    // نستخرج فقط اسم الغرفة
+    if (roomName.startsWith('http://') ||
+        roomName.startsWith('https://')) {
+      final uri = Uri.tryParse(roomName);
+
+      if (uri != null && uri.pathSegments.isNotEmpty) {
+        roomName = uri.pathSegments.last;
+      }
+    }
+
+    debugPrint("=================================");
+    debugPrint("Original Jitsi URL: $roomText");
+    debugPrint("Final Jitsi Room: $roomName");
+    debugPrint("=================================");
+
+    if (roomName.isEmpty) {
+      showToast(
+        text: "رابط الحصة غير صحيح",
+        state: ToastStates.error,
+      );
+      return;
+    }
+
+    final options = JitsiMeetConferenceOptions(
       serverURL: "https://meet.jit.si",
-      room: roomText,
+      room: roomName,
+
       configOverrides: {
         "startWithAudioMuted": false,
         "startWithVideoMuted": false,
-        "subject": "Jitsi with Flutter",
       },
-      featureFlags: {"unsaferoomwarning.enabled": false},
+
+      featureFlags: {
+        "unsaferoomwarning.enabled": false,
+      },
+
       userInfo: JitsiMeetUserInfo(
-        displayName: CacheHelper.getData(key: AppCached.name).toString(),
-        email: CacheHelper.getData(key: AppCached.email).toString(),
-        avatar: CacheHelper.getData(key: AppCached.image).toString(),
+        displayName:
+        CacheHelper.getData(key: AppCached.name)?.toString() ?? "",
+        email:
+        CacheHelper.getData(key: AppCached.email)?.toString() ?? "",
+        avatar:
+        CacheHelper.getData(key: AppCached.image)?.toString() ?? "",
       ),
     );
 
-    debugPrint("JitsiMeetingOptions: $options");
-    var jitsiMeet = JitsiMeet();
+    final jitsiMeet = JitsiMeet();
 
     await jitsiMeet.join(
       options,
       JitsiMeetEventListener(
-        conferenceTerminated: (url, error) {
-          debugPrint("BROADCAST ENDED: $error");
-        },
+
         conferenceJoined: (message) {
-          debugPrint("JOINED BROADCAST: $message");
+          debugPrint("=================================");
+          debugPrint("JOINED JITSI SUCCESSFULLY");
+          debugPrint("Message: $message");
+          debugPrint("Room: $roomName");
+          debugPrint("=================================");
+        },
+
+        conferenceTerminated: (url, error) {
+          debugPrint("=================================");
+          debugPrint("JITSI TERMINATED");
+          debugPrint("URL: $url");
+          debugPrint("ERROR: $error");
+          debugPrint("=================================");
+        },
+
+        conferenceWillJoin: (message) {
+          debugPrint("JITSI WILL JOIN: $message");
         },
       ),
     );

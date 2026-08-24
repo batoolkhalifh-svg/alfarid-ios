@@ -75,7 +75,7 @@ class LieutenantBody extends StatelessWidget {
                                                 crossAxisCount: 2,
                                                 crossAxisSpacing: width * 0.03,
                                                 mainAxisSpacing: width * 0.03,
-                                                childAspectRatio: .6),
+                                                childAspectRatio: .50),
                                             itemBuilder: (BuildContext context, int index) {
                                               return LieutenantItem(
                                                 img: cubit.allLieutenantModel!.data!.items![index].image.toString(),

@@ -10,65 +10,171 @@ import '../../../../../core/utils/styles.dart';
 import 'open_file.dart';
 
 class BookItem extends StatelessWidget {
-  final String?  price,file;
-  final String img,name,classRoom;
+  final String? price, file;
+  final String img, name, classRoom;
   final void Function()? onTapCart;
-  const BookItem({super.key, required this.img, required this.name, this.price,required this.classRoom, this.file, this.onTapCart});
+
+  const BookItem({
+    super.key,
+    required this.img,
+    required this.name,
+    this.price,
+    required this.classRoom,
+    this.file,
+    this.onTapCart,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap:file==null? (){}: ()async{
-        navigateTo(widget: PDFViewerScreen(url: file.toString(), name: name, img: img,));
+      onTap: file == null
+          ? null
+          : () {
+        navigateTo(
+          widget: PDFViewerScreen(
+            url: file.toString(),
+            name: name,
+            img: img,
+          ),
+        );
       },
       child: Container(
-        padding: EdgeInsetsDirectional.all(width*0.02),
+        width: double.infinity,
+        padding: EdgeInsets.all(width * 0.025),
         decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(AppRadius.r10)
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: width*.4,
-              height: height*.14,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(AppRadius.r10),
-                  image:  DecorationImage(image: NetworkImage(img),fit: BoxFit.fill)
-              ),
-            child:  img.isEmpty
-                ? Image.asset(AppImages.noImage,fit: BoxFit.fill,)
-                : null,),
-            SizedBox(height: width*0.018),
-            Row(
+
+            // 🖼 IMAGE + PRICE BADGE
+            Stack(
               children: [
-                SizedBox(
-                    width:width*0.3,
-                    child: Text(name, style: Styles.textStyle12.copyWith(color: AppColors.blackColor,fontWeight: FontWeight.bold),overflow: TextOverflow.ellipsis,maxLines: 2,)),
-                const Spacer(),
-                CacheHelper.getData(key: AppCached.isApple)==true?
-                const SizedBox.shrink():
-                Text(price ?? "", style: Styles.textStyle12.copyWith(color: Colors.green,fontFamily: AppFonts.almaraiBold,fontWeight: FontWeight.bold),)
+
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(AppRadius.r10),
+                  child: Container(
+                    width: double.infinity,
+                    height: height * 0.14,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: img.isEmpty
+                            ? const AssetImage(AppImages.noImage)
+                            : NetworkImage(img) as ImageProvider,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // 💰 PRICE BADGE
+                if (CacheHelper.getData(key: AppCached.isApple) != true &&
+                    price != null)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: width * 0.02,
+                        vertical: width * 0.01,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.7),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        price!,
+                        style: Styles.textStyle12.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
-            SizedBox(height: width*0.02),
-            Row(
-              children: [
-                SizedBox(
-                    width:width*0.3,
-                    child: Text(classRoom, style: Styles.textStyle14.copyWith(color: AppColors.mainColor2,fontFamily: AppFonts.almaraiRegular),maxLines: 2,overflow: TextOverflow.ellipsis,)),
-                const Spacer(),
-                CacheHelper.getData(key: AppCached.isApple)==true?
-                    const SizedBox.shrink():
-                price==null ? const SizedBox.shrink():
-                GestureDetector(
-                    onTap:onTapCart,
-                    child: SvgPicture.asset(AppImages.cart2,width: width*0.07))                                ],
+
+            SizedBox(height: width * 0.02),
+
+            // 📘 NAME
+            Text(
+              name,
+              style: Styles.textStyle12.copyWith(
+                color: AppColors.blackColor,
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
+
+            SizedBox(height: width * 0.01),
+
+            // 🏫 CLASS
+            Text(
+              classRoom,
+              style: Styles.textStyle12.copyWith(
+                color: AppColors.mainColor2,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+
+            const Spacer(),
+
+            // 🛒 ADD TO CART BUTTON (NEW DESIGN)
+            if (CacheHelper.getData(key: AppCached.isApple) != true &&
+                price != null)
+              GestureDetector(
+                onTap: onTapCart,
+                child: Container(
+                  width: double.infinity,
+                  margin: EdgeInsets.only(top: height * 0.01),
+                  padding: EdgeInsets.symmetric(vertical: height * 0.012),
+                  decoration: BoxDecoration(
+                    color: AppColors.mainColor2,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.mainColor2.withOpacity(0.2),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      )
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        AppImages.cart2,
+                        width: width * 0.05,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: width * 0.02),
+                      const Text(
+                        "أضف إلى السلة",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 }
-

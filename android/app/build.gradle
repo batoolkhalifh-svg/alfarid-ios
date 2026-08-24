@@ -20,6 +20,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+        coreLibraryDesugaringEnabled true
     }
 
     kotlinOptions {
@@ -38,8 +39,8 @@ android {
         applicationId = "com.teacher.alfarid.app"
         minSdk = 24 // أو خففيه لـ 21 لو بدك دعم أوسع
         targetSdk = flutter.targetSdkVersion
-        versionCode 9  // رقم الإصدار الجديد
-        versionName "1.2.0" // اسم الإصدار الجديد
+        versionCode 11  // رقم الإصدار الجديد
+        versionName "1.4.0" // اسم الإصدار الجديد
         ndk {
             abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
         }
@@ -71,4 +72,6 @@ flutter {
 
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.2'
 }

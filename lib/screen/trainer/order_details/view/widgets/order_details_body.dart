@@ -13,21 +13,19 @@ import '../../../../../core/widgets/custom_error.dart';
 import '../../../../../core/widgets/custom_loading.dart';
 import '../../controller/order_details_cubit.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:ui';
+
 
 class OrderDetailsBody extends StatelessWidget {
   final int id;
 
   const OrderDetailsBody({super.key, required this.id});
 
-  // 🌟 دالة فتح الرابط في المتصفح الخارجي
   Future<void> openLink(String url, BuildContext context) async {
     final uri = Uri.parse(url);
 
     if (await canLaunchUrl(uri)) {
-      await launchUrl(
-        uri,
-        mode: LaunchMode.platformDefault, // يفتح المتصفح الافتراضي
-      );
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('لا يمكن فتح الرابط')),
@@ -38,161 +36,205 @@ class OrderDetailsBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocProvider<OrderDetailsCubit>(
+      backgroundColor: const Color(0xffF5F7FB),
+      body: BlocProvider(
         create: (context) => OrderDetailsCubit()..fetchOrderDetails(id: id),
         child: BlocBuilder<OrderDetailsCubit, BaseStates>(
           builder: (context, state) {
             var cubit = OrderDetailsCubit.get(context);
 
+            if (state is BaseStatesLoadingState) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (state is BaseStatesErrorState) {
+              return Center(child: Text(state.msg));
+            }
+
+            final data = cubit.orderDetailsModel!.data!;
+
             return SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomArrow(text: LocaleKeys.requestDetails.tr()),
-                  state is BaseStatesLoadingState
-                      ? Padding(
-                    padding: EdgeInsets.only(top: width * 0.35),
-                    child: const CustomLoading(fullScreen: true),
-                  )
-                      : state is BaseStatesErrorState
-                      ? CustomError(
-                    title: state.msg,
-                    onPressed: () {
-                      cubit.fetchOrderDetails(id: id);
-                    },
-                  )
-                      : Expanded(
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: width * 0.07,
-                        vertical: width * 0.03,
-                      ),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(vertical: width * 0.06),
-                        width: width * 0.86,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+
+                    /// 🔥 CARD الرئيسي
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25),
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.white.withOpacity(0.9),
+                            Colors.white.withOpacity(0.6),
+                          ],
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            // صورة واسم الطالب
-                            CircleAvatar(
-                              radius: 30,
-                              backgroundImage: NetworkImage(
-                                cubit.orderDetailsModel!.data!.student!.image ?? '',
-                              ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          )
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+
+                          /// 👤 صورة + اسم
+                          CircleAvatar(
+                            radius: 40,
+                            backgroundImage: NetworkImage(
+                                data.student!.image ?? ''),
+                          ),
+                          const SizedBox(height: 10),
+
+                          Text(
+                            data.student!.name ?? '',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
-                            SizedBox(height: width * 0.01),
-                            Text(
-                              cubit.orderDetailsModel!.data!.student!.name ?? '',
-                              style: Styles.textStyle14.copyWith(color: AppColors.mainColor),
+                          ),
+
+                          Text(
+                            data.student!.classroom ?? '',
+                            style: const TextStyle(
+                                color: Colors.grey),
+                          ),
+
+                          const SizedBox(height: 15),
+
+                          /// 🟢 الحالة
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: data.paymentStatus == "paid"
+                                  ? Colors.green.withOpacity(0.1)
+                                  : Colors.orange.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(20),
                             ),
-                            SizedBox(height: width * 0.01),
-                            Text(
-                              cubit.orderDetailsModel!.data!.student!.classroom ?? '',
-                              style: Styles.textStyle12.copyWith(
-                                color: AppColors.blackColor2,
-                                fontFamily: 'Mulish',
+                            child: Text(
+                              data.paymentStatus == "paid"
+                                  ? "مقبول"
+                                  : "قيد الانتظار",
+                              style: TextStyle(
+                                color: data.paymentStatus == "paid"
+                                    ? Colors.green
+                                    : Colors.orange,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: width * 0.02),
+                          ),
 
-                            // التاريخ
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.date_range, color: AppColors.mainColor2),
-                                SizedBox(width: 5),
-                                Text(
-                                  cubit.orderDetailsModel!.data!.date ?? '',
-                                  style: Styles.textStyle12.copyWith(fontFamily: 'Mulish'),
-                                ),
-                              ],
+                          const SizedBox(height: 20),
+
+                          /// 📅 التاريخ والوقت
+                          Row(
+                            mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                            children: [
+                              _infoItem(Icons.date_range, data.date ?? ''),
+                              _infoItem(Icons.access_time,
+                                  "${data.slots.first.timeFrom} - ${data.slots.first.timeTo}"),
+                            ],
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          /// 📌 الأيام (chips)
+                          Wrap(
+                            spacing: 8,
+                            children: cubit.daysList
+                                .map((e) => Chip(
+                              label: Text(e.day),
+                              backgroundColor:
+                              Colors.blue.withOpacity(0.1),
+                            ))
+                                .toList(),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    /// 📂 الملفات
+                    if (data.uploadedFiles.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.04),
+                              blurRadius: 15,
+                            )
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+
+                            const Text(
+                              "📂 الملفات المرفوعة",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16),
                             ),
-                            SizedBox(height: width * 0.02),
 
-                            // الوقت
-                            Padding(
-                              padding: EdgeInsets.symmetric(vertical: 9.h),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            const SizedBox(height: 10),
+
+                            ...data.uploadedFiles.entries.map((entry) {
+                              return Column(
+                                crossAxisAlignment:
+                                CrossAxisAlignment.start,
                                 children: [
+
                                   Text(
-                                      '${LocaleKeys.from.tr()}  ${cubit.orderDetailsModel!.data!.slots.isNotEmpty ? cubit.orderDetailsModel!.data!.slots.first.timeFrom ?? '-' : '-'}'),
-                                  Text(
-                                      '${LocaleKeys.to.tr()}  ${cubit.orderDetailsModel!.data!.slots.isNotEmpty ? cubit.orderDetailsModel!.data!.slots.first.timeTo ?? '-' : '-'}'),
+                                    entry.key,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+
+                                  ...entry.value.map((file) {
+                                    return ListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      leading: const Icon(Icons.insert_drive_file),
+                                      title: Text(file.split('/').last),
+                                      trailing: const Icon(Icons.open_in_new),
+                                      onTap: () => openLink(
+                                          'https://app.alfarid.info/$file',
+                                          context),
+                                    );
+                                  }),
+
+                                  const Divider(),
                                 ],
-                              ),
-                            ),
-
-                            // الأيام
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: cubit.daysList.isNotEmpty
-                                  ? cubit.daysList.map((e) => Text(e.day)).toList()
-                                  : [],
-                            ),
-                            SizedBox(height: width * 0.04),
-
-                            // حالة الدفع
-                            Text(
-                              cubit.orderDetailsModel!.data!.paymentStatus == "paid"
-                                  ? "مقبول"
-                                  : "قيد الانتظار",
-                              style: Styles.textStyle14.copyWith(
-                                color: cubit.orderDetailsModel!.data!.paymentStatus == "paid"
-                                    ? AppColors.mainColor2
-                                    : AppColors.mainColor,
-                              ),
-                            ),
-                            SizedBox(height: width * 0.04),
-
-                            // عرض الملفات المرفوعة لكل يوم
-                            if (cubit.orderDetailsModel!.data!.uploadedFiles.isNotEmpty)
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: cubit.orderDetailsModel!.data!.uploadedFiles.entries.map((entry) {
-                                  String day = entry.key;
-                                  List<String> files = entry.value;
-
-                                  return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '$day : المواد المرفوعة',
-                                        style: Styles.textStyle14.copyWith(fontWeight: FontWeight.bold),
-                                      ),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: files.map<Widget>((file) {
-                                          return InkWell(
-                                            onTap: () => openLink('https://app.alfarid.info/$file', context),
-                                            child: Text(
-                                              "📎 ${file.split('/').last}",
-                                              style: const TextStyle(color: Colors.blue),
-                                            ),
-                                          );
-                                        }).toList(),
-                                      ),
-                                      SizedBox(height: width * 0.03),
-                                    ],
-                                  );
-                                }).toList(),
-                              ),
+                              );
+                            }),
                           ],
                         ),
                       ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           },
         ),
       ),
+    );
+  }
+
+  Widget _infoItem(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: Colors.blue),
+        const SizedBox(width: 5),
+        Text(text),
+      ],
     );
   }
 }

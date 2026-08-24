@@ -11,7 +11,6 @@ import '../../../../../core/widgets/base_state.dart';
 import '../../../../../core/widgets/custom_alert_dialogue.dart';
 import '../../controller/bottom_nav_cubit.dart';
 
-
 class CustomBottomNavListItems extends StatelessWidget {
   const CustomBottomNavListItems({super.key});
 
@@ -20,71 +19,74 @@ class CustomBottomNavListItems extends StatelessWidget {
     return BlocBuilder<BottomNavCubit, BaseStates>(
       builder: (context, state) {
         final cubit = BottomNavCubit.get(context);
+
         return Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            border: Border.all(
-              color: AppColors.borderColor,
-              width: .5,
-            ),
-            borderRadius: BorderRadius.circular(AppRadius.r20),
+            borderRadius: BorderRadius.circular(25), // بدل AppRadius.r25,
             boxShadow: [
               BoxShadow(
-                color: AppColors.borderColor.withOpacity(0.15),
-                spreadRadius: 0,
-                blurRadius: 16,
-                offset: const Offset(0, 4), // changes position of shadow
+                color: Colors.black12,
+                blurRadius: 20,
+                offset: const Offset(0, 5),
               ),
             ],
           ),
-          padding: EdgeInsets.symmetric(horizontal: width * .08),
+          padding: EdgeInsets.symmetric(vertical: height * .015, horizontal: width * .08),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(
-              cubit.btmList.length, (index) => InkWell(
+            children: List.generate(cubit.btmList.length, (index) {
+              bool isSelected = cubit.currentIndex == index;
+
+              return InkWell(
                 highlightColor: Colors.transparent,
                 splashColor: Colors.transparent,
                 onTap: () {
-                  if(CacheHelper.getData(key: AppCached.token)==null){
-                    if(index == 1 || index == 2 || index == 3) {
-                      showDialog(context: context, builder: (context)=>const CustomAlertDialog());
-                    }
-                    else{
-                      cubit.changeIndex(index: index);
-                    }
-                  }
-                  else{
+                  if (CacheHelper.getData(key: AppCached.token) == null &&
+                      (index == 1 || index == 2 || index == 3)) {
+                    showDialog(
+                        context: context,
+                        builder: (context) => const CustomAlertDialog());
+                  } else {
                     cubit.changeIndex(index: index);
                   }
                 },
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: height * .012),
-                      child: Directionality(
-                        textDirection: context.locale.languageCode == "ar" ? TextDirection.ltr : TextDirection.rtl,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  padding: EdgeInsets.symmetric(vertical: height * 0.005, horizontal: width*0.02),
+                  decoration: BoxDecoration(
+                    borderRadius:BorderRadius.circular(25), // بدل AppRadius.r25,
+                    color: isSelected ? AppColors.mainColor.withOpacity(0.1) : Colors.transparent,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AnimatedScale(
+                        scale: isSelected ? 1.2 : 1.0,
+                        duration: const Duration(milliseconds: 300),
                         child: Image.asset(
-                          cubit.currentIndex == index ? cubit.btmListSelected[index].image : cubit.btmList[index].image ,
-                          height: height * .03,
+                          isSelected
+                              ? cubit.btmListSelected[index].image
+                              : cubit.btmList[index].image,
+                          height: height * 0.035,
                           matchTextDirection: true,
-                          color: cubit.currentIndex == index ? AppColors.mainColor : AppColors.grayColor,
+                          color: isSelected ? AppColors.mainColor : AppColors.grayColor,
                         ),
                       ),
-                    ),
-                    Text(
-                      cubit.btmList[index].title,style: Styles.textStyle10.copyWith(
-                      color: cubit.currentIndex == index ? AppColors.mainColor : AppColors.grayColor,
-                      fontFamily: AppFonts.iBMPlexSansArabicRegular
-                 ),
-                    ),
-                    SizedBox(
-                      height: height * .02,
-                    ),
-                  ],
+                      SizedBox(height: height * 0.008),
+                      Text(
+                        cubit.btmList[index].title,
+                        style: Styles.textStyle12.copyWith(
+                          color: isSelected ? AppColors.mainColor : AppColors.grayColor,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                          fontFamily: AppFonts.iBMPlexSansArabicRegular,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            }),
           ),
         );
       },

@@ -76,11 +76,13 @@ class StartLiveCubit extends Cubit<BaseStates> {
     try {
       slug = FirebaseFirestore.instance.collection('lives').doc().id ;
       final body = {
+        "type": "live",
         "name": liveTitleController.text,
         "url": "https://meet.jit.si/$slug",
         "date": liveDataController.text,
         "time": liveTimeController.text,
-        "student_ids":selectedId
+        "student_ids":selectedId,
+        "notes": notesController.text,
       };
       Map<dynamic, dynamic>  createLiveResponse = await myDio(
           dioBody: body,
@@ -93,6 +95,7 @@ class StartLiveCubit extends Cubit<BaseStates> {
       } else {
         debugPrint(createLiveResponse.toString());
         await FirebaseFirestore.instance.collection('lives').doc().set({
+          'type': 'live',
           'active': false,
           'date': liveDataController.text,
           'details': notesController.text,
@@ -106,7 +109,11 @@ class StartLiveCubit extends Cubit<BaseStates> {
           'user_id': CacheHelper.getData(key: AppCached.id).toString(),
           'student_ids': selectedId,
         });
-        navigateAndReplace(widget: LinkLive(link: createLiveResponse['data']['url']));
+        navigateAndReplace(
+          widget: LinkLive(
+            link: createLiveResponse["data"]["livestream"]["url"],
+          ),
+        );
         emit(BaseStatesSuccessState());
        }
     } catch (e, s) {

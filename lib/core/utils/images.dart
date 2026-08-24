@@ -86,4 +86,7 @@ class AppImages {
   static const emptyGroupChat = "assets/images/empty_group_chat.svg";
   static const groupImg = "assets/images/group_img.png";
   static const lives = "assets/images/lives.svg";
+  static const llive= "assets/images/llive.svg";
+  static const lab= "assets/images/lab.svg";
+  static const file= "assets/images/file.svg";
 }

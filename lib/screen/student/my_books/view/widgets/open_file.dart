@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
@@ -9,7 +10,12 @@ class PDFViewerScreen extends StatefulWidget {
   final String name;
   final String img;
 
-  const PDFViewerScreen({super.key, required this.url, required this.name, required this.img});
+  const PDFViewerScreen({
+    super.key,
+    required this.url,
+    required this.name,
+    required this.img,
+  });
 
   @override
   State<PDFViewerScreen> createState() => _PDFViewerScreenState();
@@ -18,6 +24,9 @@ class PDFViewerScreen extends StatefulWidget {
 class _PDFViewerScreenState extends State<PDFViewerScreen> {
   String? filePath;
   double progress = 0.0;
+
+  http.Client? _client;
+  StreamSubscription<List<int>>? _subscription;
 
   @override
   void initState() {
@@ -30,29 +39,41 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       final tempDir = await getTemporaryDirectory();
       final file = File('${tempDir.path}/temp_book.pdf');
 
+      _client = http.Client();
+
       final request = http.Request('GET', Uri.parse(widget.url));
-      final response = await http.Client().send(request);
+      final response = await _client!.send(request);
 
       if (response.statusCode == 200) {
         final contentLength = response.contentLength ?? 0;
         List<int> bytes = [];
         int downloaded = 0;
 
-        response.stream.listen((List<int> newBytes) {
-          bytes.addAll(newBytes);
-          downloaded += newBytes.length;
+        _subscription = response.stream.listen(
+              (newBytes) {
+            bytes.addAll(newBytes);
+            downloaded += newBytes.length;
 
-          setState(() {
-            progress = contentLength > 0 ? downloaded / contentLength : 0;
-          });
-        }, onDone: () async {
-          await file.writeAsBytes(bytes);
-          setState(() {
-            filePath = file.path;
-          });
-        }, onError: (error) {
-          print("❌ خطأ أثناء التحميل: $error");
-        });
+            if (!mounted) return;
+            setState(() {
+              progress = contentLength > 0
+                  ? downloaded / contentLength
+                  : 0;
+            });
+          },
+          onDone: () async {
+            await file.writeAsBytes(bytes);
+
+            if (!mounted) return;
+            setState(() {
+              filePath = file.path;
+            });
+          },
+          onError: (error) {
+            print("❌ خطأ أثناء التحميل: $error");
+          },
+          cancelOnError: true,
+        );
       } else {
         print("❌ فشل تحميل الملف");
       }
@@ -63,14 +84,17 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
 
   @override
   void dispose() {
-    super.dispose();
+    _subscription?.cancel();
+    _client?.close();
+
     if (filePath != null) {
       final file = File(filePath!);
       if (file.existsSync()) {
         file.delete();
-        print("✅ تم حذف الملف بنجاح");
       }
     }
+
+    super.dispose();
   }
 
   @override

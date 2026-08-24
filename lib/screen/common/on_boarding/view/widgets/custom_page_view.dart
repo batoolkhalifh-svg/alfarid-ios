@@ -25,11 +25,19 @@ class CustomPageView extends StatelessWidget {
               itemBuilder: (context, index) => Stack(
                    children: [
                      SizedBox(width: width,height: height,),
-                  Container(
-                    margin: EdgeInsets.only(top: height*0.04),
-                      width: width,
-                      height: height*.55,
-                      child: CustomNetworkImg(img: cubit.onBoardingModel!.data![index].image.toString(),height: height*.5,)
+              Container(
+                margin: EdgeInsets.only(top: height * 0.04),
+                width: width,
+                height: height * 0.4,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20), // اختياري للتجميل
+                  child: Image.network(
+                    cubit.onBoardingModel!.data![index].image.toString(),
+                    fit: BoxFit.contain, // أو BoxFit.contain حسب الشكل المطلوب
+                    width: width,
+                    height: height * 0.55,
+                  ),
+                ),
                   ),
                   Positioned(
                     bottom: 0,

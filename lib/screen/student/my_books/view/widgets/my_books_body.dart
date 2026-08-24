@@ -56,7 +56,7 @@ class MyBooksBody extends StatelessWidget {
                                 crossAxisCount: 2 ,
                               crossAxisSpacing: width*0.03,
                               mainAxisSpacing: width*0.03,
-                              childAspectRatio: .71
+                              childAspectRatio: .63
                             ),
                             itemBuilder: (BuildContext context, int index) {
                               return BookItem(

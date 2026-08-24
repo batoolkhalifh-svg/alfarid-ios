@@ -193,17 +193,51 @@ class TeacherProfileBody extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                              CustomButton(
-                                  text: LocaleKeys.addReviews.tr(),
-                                  onPressed: () {
-                                    CacheHelper.getData(key: AppCached.token) == null
-                                        ? showDialog(context: context, builder: (context) => const CustomAlertDialog())
-                                        : navigateTo(
-                                            widget: AddRateScreen(
-                                            id: cubit.teacherProfileModel!.data!.id!,
-                                          ));
-                                  },
-                                  widthBtn: width * 0.85)
+                              // زر "أضف تقييم" الجديد بتصميم فخم
+                              Container(
+                                margin: EdgeInsets.symmetric(vertical: height * 0.02),
+                                width: width * 0.85,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  gradient: const LinearGradient(
+                                    colors: [AppColors.mainColor, AppColors.mainColor2],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.25),
+                                      offset: const Offset(0, 4),
+                                      blurRadius: 6,
+                                    ),
+                                  ],
+                                ),
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(12),
+                                    onTap: () {
+                                      CacheHelper.getData(key: AppCached.token) == null
+                                          ? showDialog(context: context, builder: (context) => const CustomAlertDialog())
+                                          : navigateTo(
+                                        widget: AddRateScreen(
+                                          id: cubit.teacherProfileModel!.data!.id!,
+                                        ),
+                                      );
+                                    },
+                                    child: Center(
+                                      child: Text(
+                                        LocaleKeys.addReviews.tr(),
+                                        style: Styles.textStyle16.copyWith(
+                                          color: Colors.white,
+                                          fontFamily: AppFonts.almaraiBold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
                             ],
                           ),
                         ),

@@ -13,15 +13,25 @@ class ClassroomsScreen extends StatefulWidget {
   State<ClassroomsScreen> createState() => _ClassroomsScreenState();
 }
 
-class _ClassroomsScreenState extends State<ClassroomsScreen> {
+class _ClassroomsScreenState extends State<ClassroomsScreen>
+    with SingleTickerProviderStateMixin {
   List classrooms = [];
   bool isLoading = true;
   String error = '';
+  late AnimationController _animationController;
 
   @override
   void initState() {
     super.initState();
+    _animationController =
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
     fetchClassrooms();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> fetchClassrooms() async {
@@ -37,7 +47,6 @@ class _ClassroomsScreenState extends State<ClassroomsScreen> {
         final data = json.decode(response.body);
         List allClassrooms = data['data'];
 
-        // تعيين نوع كل صف حسب الـ ID إذا الـ API لا يُرجع type
         for (var item in allClassrooms) {
           if (item["id"] >= 1 && item["id"] <= 10) {
             item["type"] = "primary";
@@ -50,11 +59,10 @@ class _ClassroomsScreenState extends State<ClassroomsScreen> {
           } else if (item["id"] >= 28 && item["id"] <= 33) {
             item["type"] = "uni";
           } else {
-            item["type"] = null; // أي صف آخر
+            item["type"] = null;
           }
         }
 
-        // تصفية الصفوف حسب الـ types المرسلة
         List filtered = allClassrooms
             .where((item) => item["type"] != null && widget.types.contains(item["type"]))
             .toList();
@@ -64,8 +72,7 @@ class _ClassroomsScreenState extends State<ClassroomsScreen> {
           isLoading = false;
         });
 
-        debugPrint('All classrooms: $allClassrooms');
-        debugPrint('Filtered classrooms: $filtered');
+        _animationController.forward();
       } else {
         setState(() {
           error = 'Failed to load classrooms: ${response.statusCode}';
@@ -80,36 +87,131 @@ class _ClassroomsScreenState extends State<ClassroomsScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : error.isNotEmpty
-          ? Center(child: Text(error))
-          : classrooms.isEmpty
-          ? const Center(child: Text('لا يوجد صفوف'))
-          : ListView.builder(
-        itemCount: classrooms.length,
-        itemBuilder: (context, index) {
-          final classroom = classrooms[index];
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: ListTile(
-              title: Text(classroom['name'] ?? 'صف غير معروف'),
-              trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => TeachersScreen(classroom: classroom),
-                  ),
-                );
-              },
+  // ألوان راقية وهادئة لكل نوع صف
+  LinearGradient getGradient(String type) {
+    switch (type) {
+      case "primary":
+        return const LinearGradient(
+            colors: [Color(0xFFEDF7FA), Color(0xFF1ca3c1)]); // أزرق كريمي
+      case "secondary":
+        return const LinearGradient(
+            colors: [Color(0xFFFFF9EC), Color(0xFF1ca3c1)]); // ذهبي فاتح ناعم
+      case "preparatory":
+        return const LinearGradient(
+            colors: [Color(0xFFE8F7F8), Color(0xFFCFF0F2)]); // كريمي أزرق هادئ
+      case "private":
+        return const LinearGradient(
+            colors: [Color(0xFFF5EDF9), Color(0xFFa4caec)]); // بنفسجي فاتح ناعم
+      case "uni":
+        return const LinearGradient(
+            colors: [Color(0xFFF4F0FA), Color(0xFFd3e4f4)]); // أرجواني خفيف
+      default:
+        return LinearGradient(
+            colors: [Colors.grey.shade200, Colors.grey.shade300]);
+    }
+  }
+
+  Widget buildClassroomCard(Map classroom, LinearGradient gradient, int index) {
+    final animation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero)
+        .animate(CurvedAnimation(
+        parent: _animationController,
+        curve: Interval((index / classrooms.length), 1.0, curve: Curves.easeOut)));
+
+    return SlideTransition(
+      position: animation,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => TeachersScreen(classroom: classroom),
             ),
           );
         },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          decoration: BoxDecoration(
+            gradient: gradient,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              )
+            ],
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // مهم لتجنب overflow
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.school,
+                size: 36,
+                color: Colors.blueGrey.shade700,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                classroom['name'] ?? 'صف غير معروف',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blueGrey.shade800,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildGridView() {
+    return GridView.builder(
+      padding: const EdgeInsets.all(16),
+      shrinkWrap: true,
+      physics: const BouncingScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 3 / 2.2, // أقل ارتفاع لتجنب overflow
+      ),
+      itemCount: classrooms.length,
+      itemBuilder: (context, index) {
+        final classroom = classrooms[index];
+        final gradient = getGradient(classroom['type']);
+        return buildClassroomCard(classroom, gradient, index);
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F6FA),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          widget.title,
+          style: const TextStyle(
+              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 22),
+        ),
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
+      body: SafeArea(
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : error.isNotEmpty
+            ? Center(child: Text(error))
+            : classrooms.isEmpty
+            ? const Center(child: Text('لا يوجد صفوف'))
+            : buildGridView(),
       ),
     );
   }

@@ -18,52 +18,109 @@ class CustomTeacherHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Builder(
-      builder: (context) {
-        final cubit = context.read<HomeTeacherCubit>();
-        return Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.only(right: width * 0.045, left: width * 0.045, top: height * 0.018),
-              child: Row(
+    final cubit = context.read<HomeTeacherCubit>();
+
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: width * 0.045,
+        vertical: height * 0.01,
+      ),
+      child: Row(
+        children: [
+          // 👤 صورة + اسم
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 22.r,
+                backgroundColor: AppColors.mainColor.withOpacity(0.15),
+                backgroundImage: const NetworkImage(
+                  "https://app.alfarid.info/app/images/user.png",
+                ),
+              ),
+
+              SizedBox(width: 10.w),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "${LocaleKeys.welcome.tr()} ${CacheHelper.getData(key: AppCached.name)}",
-                    style: Styles.textStyle14.copyWith(color: AppColors.mainColorText),
+                    LocaleKeys.welcome.tr(),
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.8),
+                      fontSize: 12.sp,
+                    ),
                   ),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () {
-                      navigateTo(widget: const NotificationScreen());
-                    },
-                    child: CircleAvatar(
-                        backgroundColor: Colors.white,
-                        child: Stack(
-                          alignment: AlignmentDirectional.topStart,
-                          children: [
-                            Icon(
-                              Icons.notifications_none_outlined,
-                              color: AppColors.mainColor,
-                              size: 33.w,
+                  Text(
+                    CacheHelper.getData(key: AppCached.name) ?? "Teacher",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          const Spacer(),
+
+          // 🔔 Notifications
+          GestureDetector(
+            onTap: () {
+              navigateTo(widget: const NotificationScreen());
+            },
+            child: Container(
+              padding: EdgeInsets.all(8.w),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.15),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.25),
+                ),
+              ),
+              child: Stack(
+                alignment: Alignment.topRight,
+                children: [
+                  Icon(
+                    Icons.notifications_none_rounded,
+                    color: Colors.white,
+                    size: 26.sp,
+                  ),
+
+                  // 🔴 Badge
+                  if (cubit.studentHomeModel!.data!.notificationsCount! > 0)
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: EdgeInsets.all(4.w),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: BoxConstraints(
+                          minWidth: 18.w,
+                          minHeight: 18.w,
+                        ),
+                        child: Center(
+                          child: Text(
+                            cubit.studentHomeModel!.data!.notificationsCount.toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.bold,
                             ),
-                            if(cubit.studentHomeModel!.data!.notificationsCount!>0)
-                            Container(
-                              padding: EdgeInsets.all(3.h),
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle
-                              ),
-                              child: Text(cubit.studentHomeModel!.data!.notificationsCount.toString()),
-                            )
-                          ],
-                        )),
-                  )
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
-          ],
-        );
-      }
+          ),
+        ],
+      ),
     );
   }
 }

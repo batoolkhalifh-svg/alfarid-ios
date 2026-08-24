@@ -10,6 +10,8 @@ import '../../../../core/local/app_cached.dart';
 import '../../../../core/local/cache_helper.dart';
 import '../../../../generated/locale_keys.g.dart';
 import '../../start_live/model/live_model.dart';
+import '../../start_vr/view/vr_viewer_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TeacherLiveCubit extends Cubit<TeacherLiveStates> {
   TeacherLiveCubit() : super(TeacherLiveInitialState());
@@ -21,34 +23,83 @@ class TeacherLiveCubit extends Cubit<TeacherLiveStates> {
   LivesModel? livesModel;
 
   int? currentLiveIndex;
+
   List<LivesModel> lives = [];
 
   List liveStatus = [];
 
   Future<void> getLives({required BuildContext? context}) async {
     emit(GetLivesLoading());
+
     currentLiveIndex = null;
+
     lives.clear();
+
     liveStatus.clear();
-    await FirebaseFirestore.instance.collection('lives').orderBy('date', descending: true).get().then((value) {
+
+    await FirebaseFirestore.instance
+        .collection('lives')
+        .orderBy('date', descending: true)
+        .get()
+        .then((value) {
       value.docs.forEach((element) {
-        if (element["user_id"].toString() == CacheHelper.getData(key: AppCached.id).toString()) {
-          lives.add(LivesModel(
+
+        if (element["user_id"].toString() ==
+            CacheHelper.getData(key: AppCached.id).toString()) {
+
+          lives.add(
+            LivesModel(
               docName: element.id,
+
               liveName: element['live_name'],
-              roomStudent: element['slug'],
+
+              type: element.data().containsKey('type')
+                  ? element['type']
+                  : 'live',
+
+              roomStudent: element.data().containsKey('slug')
+                  ? element['slug']
+                  : null,
+
               date: element['date'],
+
               time: element['time'],
+
               details: element['details'],
+
+              /*
+              |--------------------------------------------------------------------------
+              | رابط مختبر VR
+              | أو رابط البث القديم حسب نوع الحصة
+              |--------------------------------------------------------------------------
+              */
+
               link: element['link'],
+
+              /*
+              |--------------------------------------------------------------------------
+              | رابط Jitsi
+              |--------------------------------------------------------------------------
+              */
+
+              jitsiUrl: element.data().containsKey('url')
+                  ? element['url']
+                  : null,
+
               active: element['active'],
-              finish: element['finished']));
+
+              finish: element['finished'],
+            ),
+          );
+
         } else {
           print("not my user");
         }
       });
+
       print(lives);
     });
+
     emit(GetLivesSuccess());
   }
 
@@ -58,70 +109,298 @@ class TeacherLiveCubit extends Cubit<TeacherLiveStates> {
   /// live date ... date time
 
   DateTime? liveDate;
+
   DateTime? dateNow;
+
   TimeOfDay? liveTime;
 
   TimeOfDay? timeNow;
 
-  void onClick({required BuildContext context, required int index}) async {
+  void onClick({
+    required BuildContext context,
+    required int index,
+  }) async {
+
     currentLiveIndex = index;
+
     DateTime now = DateTime.now();
-    dateNow = DateTime(now.year, now.month, now.day);
-    liveDate = DateTime.parse(lives[index].date);
+
+    dateNow = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    );
+
+    liveDate = DateTime.parse(
+      lives[index].date,
+    );
+
     timeNow = TimeOfDay.now();
-    liveTime = TimeOfDay(hour: int.parse(lives[index].time.split(":")[0]), minute: int.parse(lives[index].time.split(":")[1]));
-    if ((dateNow!.isAtSameMomentAs(liveDate!) &&
-            ((timeNow!.hour >= liveTime!.hour) && (timeNow!.minute >= liveTime!.minute)) &&
-            (lives[index].finish == false)) ||
-        (dateNow!.isAtSameMomentAs(liveDate!) &&
-            ((timeNow!.hour >= liveTime!.hour) && (timeNow!.minute < liveTime!.minute)) &&
-            (lives[index].finish == false))) {
-      joinMeeting(roomText: lives[index].roomStudent!, context: context);
-    } else if ((lives[index].active == false) && (lives[index].finish == true)) {
-      showToast(text: LocaleKeys.broadcastCompleted.tr(), state: ToastStates.success);
-    } else if ((dateNow!.isAtSameMomentAs(liveDate!) && ((timeNow!.hour <= liveTime!.hour)) && (lives[index].finish == false)) ||
-        (dateNow!.isAtSameMomentAs(liveDate!) &&
-            ((timeNow!.hour <= liveTime!.hour) && (timeNow!.minute <= liveTime!.minute)) &&
-            (lives[index].finish == false))) {
-      showToast(text: LocaleKeys.momentsBroadcast.tr(), state: ToastStates.success);
-    } else if (dateNow!.isBefore(liveDate!) && (lives[index].finish == false)) {
-      showToast(text: LocaleKeys.notDay.tr(), state: ToastStates.success);
-    } else if (dateNow!.isAfter(liveDate!) && (lives[index].active == false) && (lives[index].finish == false)) {
-      showToast(text: LocaleKeys.timeEndLive.tr(), state: ToastStates.success);
+
+    liveTime = TimeOfDay(
+      hour: int.parse(
+        lives[index].time.split(":")[0],
+      ),
+      minute: int.parse(
+        lives[index].time.split(":")[1],
+      ),
+    );
+
+    if (
+    (
+        dateNow!.isAtSameMomentAs(liveDate!) &&
+            (
+                (timeNow!.hour >= liveTime!.hour) &&
+                    (timeNow!.minute >= liveTime!.minute)
+            ) &&
+            (lives[index].finish == false)
+    )
+        ||
+        (
+            dateNow!.isAtSameMomentAs(liveDate!) &&
+                (
+                    (timeNow!.hour >= liveTime!.hour) &&
+                        (timeNow!.minute < liveTime!.minute)
+                ) &&
+                (lives[index].finish == false)
+        )
+    ) {
+
+      /*
+      |--------------------------------------------------------------------------
+      | حصة VR
+      |--------------------------------------------------------------------------
+      */
+
+      if (lives[index].type == "vr") {
+
+        print("Opening VR Lab");
+
+        print("VR URL: ${lives[index].link}");
+
+        print("Jitsi URL: ${lives[index].jitsiUrl}");
+
+        final String? jitsiUrl = lives[index].jitsiUrl;
+
+        if (jitsiUrl == null || jitsiUrl.isEmpty) {
+          showToast(
+            text: "رابط Jitsi غير موجود",
+            state: ToastStates.error,
+          );
+          return;
+        }
+
+        final String vrUrl = Uri.parse(lives[index].link).replace(
+          queryParameters: {
+            'room': jitsiUrl.replaceFirst('https://', ''),
+          },
+        ).toString();
+
+        print("Final VR URL: $vrUrl");
+
+       /* Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VrViewerScreen(
+              url: vrUrl,
+            ),
+          ),
+        );*/
+        final uri = Uri.parse(vrUrl);
+
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(
+            uri,
+            mode: LaunchMode.externalApplication,
+          );
+        }
+
+      } else {
+
+        joinMeeting(
+          roomText: lives[index].roomStudent!,
+          context: context,
+        );
+
+      }
+
+      /*
+      |--------------------------------------------------------------------------
+      | حصة Live عادية
+      |--------------------------------------------------------------------------
+      */
+
+    }
+
+    else if (
+    (lives[index].active == false) &&
+        (lives[index].finish == true)
+    ) {
+
+      showToast(
+        text: LocaleKeys.broadcastCompleted.tr(),
+        state: ToastStates.success,
+      );
+
+    }
+
+    else if (
+    (
+        dateNow!.isAtSameMomentAs(liveDate!) &&
+            ((timeNow!.hour <= liveTime!.hour)) &&
+            (lives[index].finish == false)
+    )
+        ||
+        (
+            dateNow!.isAtSameMomentAs(liveDate!) &&
+                (
+                    (timeNow!.hour <= liveTime!.hour) &&
+                        (timeNow!.minute <= liveTime!.minute)
+                ) &&
+                (lives[index].finish == false)
+        )
+    ) {
+
+      showToast(
+        text: LocaleKeys.momentsBroadcast.tr(),
+        state: ToastStates.success,
+      );
+
+    }
+
+    else if (
+    dateNow!.isBefore(liveDate!) &&
+        (lives[index].finish == false)
+    ) {
+
+      showToast(
+        text: LocaleKeys.notDay.tr(),
+        state: ToastStates.success,
+      );
+
+    }
+
+    else if (
+    dateNow!.isAfter(liveDate!) &&
+        (lives[index].active == false) &&
+        (lives[index].finish == false)
+    ) {
+
+      showToast(
+        text: LocaleKeys.timeEndLive.tr(),
+        state: ToastStates.success,
+      );
     }
   }
 
-  String? text({required int index}) {
-    DateTime now = DateTime.now();
-    dateNow = DateTime(now.year, now.month, now.day);
-    liveDate = DateTime.parse(lives[index].date);
-    timeNow = TimeOfDay.now();
-    liveTime = TimeOfDay(hour: int.parse(lives[index].time.split(":")[0]), minute: int.parse(lives[index].time.split(":")[1]));
+  String? text({
+    required int index,
+  }) {
 
-    if ((dateNow!.isAtSameMomentAs(liveDate!) &&
-            ((timeNow!.hour >= liveTime!.hour) && (timeNow!.minute >= liveTime!.minute)) &&
-            (lives[index].finish == false)) ||
-        (dateNow!.isAtSameMomentAs(liveDate!) &&
-            ((timeNow!.hour >= liveTime!.hour) && (timeNow!.minute < liveTime!.minute)) &&
-            (lives[index].finish == false))) {
+    DateTime now = DateTime.now();
+
+    dateNow = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    );
+
+    liveDate = DateTime.parse(
+      lives[index].date,
+    );
+
+    timeNow = TimeOfDay.now();
+
+    liveTime = TimeOfDay(
+      hour: int.parse(
+        lives[index].time.split(":")[0],
+      ),
+      minute: int.parse(
+        lives[index].time.split(":")[1],
+      ),
+    );
+
+    if (
+    (
+        dateNow!.isAtSameMomentAs(liveDate!) &&
+            (
+                (timeNow!.hour >= liveTime!.hour) &&
+                    (timeNow!.minute >= liveTime!.minute)
+            ) &&
+            (lives[index].finish == false)
+    )
+        ||
+        (
+            dateNow!.isAtSameMomentAs(liveDate!) &&
+                (
+                    (timeNow!.hour >= liveTime!.hour) &&
+                        (timeNow!.minute < liveTime!.minute)
+                ) &&
+                (lives[index].finish == false)
+        )
+    ) {
+
       return LocaleKeys.broadcastNow.tr();
-    } else if ((lives[index].active == false) && (lives[index].finish == true)) {
-      return LocaleKeys.broadcastCompleted.tr();
-    } else if ((dateNow!.isAtSameMomentAs(liveDate!) && ((timeNow!.hour <= liveTime!.hour)) && (lives[index].finish == false)) ||
-        (dateNow!.isAtSameMomentAs(liveDate!) &&
-            ((timeNow!.hour <= liveTime!.hour) && (timeNow!.minute <= liveTime!.minute)) &&
-            (lives[index].finish == false))) {
-      return LocaleKeys.momentsBroadcast.tr();
-    } else if (dateNow!.isBefore(liveDate!) && (lives[index].finish == false)) {
-      return LocaleKeys.notDay.tr();
-    } else if (dateNow!.isAfter(liveDate!) && (lives[index].active == false) && (lives[index].finish == false)) {
-      return LocaleKeys.timeEndLive.tr();
+
     }
 
-    return text(index: index);
+    else if (
+    (lives[index].active == false) &&
+        (lives[index].finish == true)
+    ) {
+
+      return LocaleKeys.broadcastCompleted.tr();
+
+    }
+
+    else if (
+    (
+        dateNow!.isAtSameMomentAs(liveDate!) &&
+            ((timeNow!.hour <= liveTime!.hour)) &&
+            (lives[index].finish == false)
+    )
+        ||
+        (
+            dateNow!.isAtSameMomentAs(liveDate!) &&
+                (
+                    (timeNow!.hour <= liveTime!.hour) &&
+                        (timeNow!.minute <= liveTime!.minute)
+                ) &&
+                (lives[index].finish == false)
+        )
+    ) {
+
+      return LocaleKeys.momentsBroadcast.tr();
+
+    }
+
+    else if (
+    dateNow!.isBefore(liveDate!) &&
+        (lives[index].finish == false)
+    ) {
+
+      return LocaleKeys.notDay.tr();
+
+    }
+
+    else if (
+    dateNow!.isAfter(liveDate!) &&
+        (lives[index].active == false) &&
+        (lives[index].finish == false)
+    ) {
+
+      return LocaleKeys.timeEndLive.tr();
+
+    }
+
+    return null;
   }
 
-  joinMeeting({required String roomText, required BuildContext context}) async {
+  joinMeeting({
+    required String roomText,
+    required BuildContext context,
+  }) async {
+
     Map<String, bool> featureFlags = {
       'isWelcomePageEnabled': false,
       'isAddPeopleEnabled': false,
@@ -161,76 +440,137 @@ class TeacherLiveCubit extends Cubit<TeacherLiveStates> {
       'isNotificationsEnabled': true,
     };
 
-    // Define meetings options here
-    // var options =  JitsiMeetConferenceOptions(
-    //       room: roomText,
-    //     // userDisplayName: CacheHelper.getData(key: AppCached.name).toString(),
-    //     // userAvatarUrl:CacheHelper.getData(key: AppCached.image).toString(),
-    //     // userEmail : CacheHelper.getData(key: AppCached.email).toString(),
-    //     // isAudioOnly : false,
-    //     // isAudioMuted : false,
-    //     // isVideoMuted : false,
-    //     // overflowMenuEnabled :true,
-    //     featureFlags: featureFlags,
-    // );
-
     var options = JitsiMeetConferenceOptions(
       serverURL: "https://meet.jit.si",
+
       room: roomText,
+
       configOverrides: {
         "startWithAudioMuted": false,
         "startWithVideoMuted": false,
         "subject": "Jitsi with Flutter",
       },
-      featureFlags: {"unsaferoomwarning.enabled": false},
+
+      featureFlags: {
+        "unsaferoomwarning.enabled": false,
+      },
+
       userInfo: JitsiMeetUserInfo(
-          displayName: CacheHelper.getData(key: AppCached.name).toString(),
-          email: CacheHelper.getData(key: AppCached.email).toString(),
-          avatar: CacheHelper.getData(key: AppCached.image).toString()),
+        displayName:
+        CacheHelper.getData(key: AppCached.name).toString(),
+
+        email:
+        CacheHelper.getData(key: AppCached.email).toString(),
+
+        avatar:
+        CacheHelper.getData(key: AppCached.image).toString(),
+      ),
     );
 
-    debugPrint("JitsiMeetingOptions: $options");
+    debugPrint(
+      "JitsiMeetingOptions: $options",
+    );
+
     var jitsiMeet = JitsiMeet();
 
     await jitsiMeet.join(
       options,
+
       JitsiMeetEventListener(
+
         conferenceTerminated: (url, error) async {
-          FirebaseFirestore.instance.collection('lives').doc(lives[currentLiveIndex!].docName).update({'active': false, 'finished': true});
-          debugPrint("Finished Yaa Teacher مبرووووووووووووووك $error");
-          await getLives(context: context);
+
+          FirebaseFirestore.instance
+              .collection('lives')
+              .doc(lives[currentLiveIndex!].docName)
+              .update({
+            'active': false,
+            'finished': true,
+          });
+
+          debugPrint(
+            "Finished Yaa Teacher $error",
+          );
+
+          await getLives(
+            context: context,
+          );
         },
+
         conferenceJoined: onConferenceJoined,
-        participantJoined: (email, name, role, participantId) {
+
+        participantJoined: (
+            email,
+            name,
+            role,
+            participantId,
+            ) {
+
           debugPrint(
-            "participantJoined: email: $email, name: $name, role: $role, "
-            "participantId: $participantId",
+            "participantJoined: email: $email, "
+                "name: $name, "
+                "role: $role, "
+                "participantId: $participantId",
           );
         },
+
         readyToClose: () {
-          debugPrint("readyToClose");
-        },
-        audioMutedChanged: (isMuted) {
-          debugPrint("onAudioMutedChanged: isMuted: $isMuted");
-        },
-        videoMutedChanged: (isMuted) {
-          debugPrint("onVideoMutedChanged: isMuted: $isMuted");
-        },
-        screenShareToggled: (participantId, isSharing) {
           debugPrint(
-            "onScreenShareToggled: participantId: $participantId, "
-            "isSharing: $isSharing",
+            "readyToClose",
           );
         },
-        participantLeft: (participantId) {
-          debugPrint("onParticipantLeft: participantId: $participantId");
+
+        audioMutedChanged: (isMuted) {
+          debugPrint(
+            "onAudioMutedChanged: isMuted: $isMuted",
+          );
+        },
+
+        videoMutedChanged: (isMuted) {
+          debugPrint(
+            "onVideoMutedChanged: isMuted: $isMuted",
+          );
+        },
+
+        screenShareToggled: (
+            participantId,
+            isSharing,
+            ) {
+
+          debugPrint(
+            "onScreenShareToggled: participantId: "
+                "$participantId, "
+                "isSharing: $isSharing",
+          );
+        },
+
+        participantLeft: (
+            participantId,
+            ) {
+
+          debugPrint(
+            "onParticipantLeft: participantId: "
+                "$participantId",
+          );
         },
       ),
     );
   }
 
-  Future onConferenceJoined(message) async {
-    await FirebaseFirestore.instance.collection('lives').doc(lives[currentLiveIndex!].docName).update({'active': true, 'finished': false});
-    debugPrint("Joined Yaa Teacher مبروووووووووووووك $message");
+  Future onConferenceJoined(
+      message,
+      ) async {
+
+    await FirebaseFirestore.instance
+        .collection('lives')
+        .doc(lives[currentLiveIndex!].docName)
+        .update({
+      'active': true,
+      'finished': false,
+    });
+
+    debugPrint(
+      "Joined Yaa Teacher $message",
+    );
   }
 }

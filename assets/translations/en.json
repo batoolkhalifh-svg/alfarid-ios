@@ -202,6 +202,12 @@
   "availableDays": "Available days",
   "availableTimes": "Available times",
   "noteMustBeInRange": "Note : You have to select day and time in available range",
-  "to": "To"
-
+  "to": "To",
+  "vr":  "Virtual Lab",
+  "details": "VR Interactive Class",
+  "bvr": "Start VR",
+  "l1": "Live broadcast link",
+  "l2": "Choose the student and time to start an interactive and live learning experience",
+  "l3": "Virtual labs",
+  "l4": "Choose the subject and lab to start an interactive learning experience"
 }

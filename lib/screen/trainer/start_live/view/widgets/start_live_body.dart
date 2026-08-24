@@ -4,6 +4,7 @@ import 'package:alfarid/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
 import '../../../../../core/utils/colors.dart';
@@ -32,6 +33,64 @@ class StartLiveBody extends StatelessWidget {
                 child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(24.w),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          AppColors.mainColor,
+                          AppColors.blackColor2,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(30.r),
+                        bottomRight: Radius.circular(30.r),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+
+                        SizedBox(height: 10.h),
+
+                        CircleAvatar(
+                          radius: 35.r,
+                          backgroundColor: Colors.white.withOpacity(.15),
+                          child: Icon(
+                            Icons.view_in_ar,
+                            color: Colors.white,
+                            size: 38.sp,
+                          ),
+                        ),
+
+                        SizedBox(height: 18.h),
+
+                        Text(
+                          LocaleKeys.l1.tr(),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        SizedBox(height: 8.h),
+
+                        Text(
+                          LocaleKeys.l2.tr(),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14.sp,
+                          ),
+                        ),
+
+                        SizedBox(height: 18.h),
+                      ],
+                    ),
+                  ),
                  CustomArrow(text: LocaleKeys.makeAlive.tr()),
                   Expanded(
                     child: Padding(

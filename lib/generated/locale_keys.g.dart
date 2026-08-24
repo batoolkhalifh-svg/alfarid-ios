@@ -205,5 +205,11 @@ abstract class  LocaleKeys {
   static const availableTimes = 'availableTimes';
   static const noteMustBeInRange = 'noteMustBeInRange';
   static const to = 'to';
-
+  static const vr= 'vr';
+  static const details= 'details';
+  static const bvr= 'bvr';
+  static const l1='l1';
+  static const l2='l2';
+  static const l3='l3';
+  static const l4='l4';
 }
